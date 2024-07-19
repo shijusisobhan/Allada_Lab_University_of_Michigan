@@ -1,2 +1,2 @@
-# Allada_Lab_University_of_Michigan
+# Allada Lab (Michigan neuroscience institute, University of Michigan)
 Allada Lab projects
