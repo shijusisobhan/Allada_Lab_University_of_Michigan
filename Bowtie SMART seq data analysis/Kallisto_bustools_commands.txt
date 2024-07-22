@@ -2,10 +2,12 @@ cd /nfs/turbo/umms-rallada/Sequencing_data/Clark_seq_data_6-12-2024/01.RawData/B
 
 
 
-Create a refernce Index
+# Create a refernce Index
 
 kb ref -i kb_Droophila_index.idx -g t2g.txt -f1 cdna.fasta Drosophila_melanogaster.BDGP6.46.dna.toplevel.fa Drosophila_melanogaster.BDGP6.46.112.gtf
 
+# commands for a single paired end sample.
 kb count -x SMARTSEQ2 -w NONE -o Kb_BT1 -i kb_Droophila_index.idx -g t2g.txt --parity=paired BT_1_CKDL240019494-1A_HHCCCDSXC_L2_1.fq.gz BT_1_CKDL240019494-1A_HHCCCDSXC_L2_2.fq.gz
 
+# It is for multiple samples
 kb count -x SMARTSEQ2 -w NONE -o KB_BT_all -i kb_Droophila_index.idx -g t2g.txt --parity=paired \--batch-barcodes Batch.txt
