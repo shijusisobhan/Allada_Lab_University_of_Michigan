@@ -32,12 +32,12 @@ Read the .mtx file created by kallisto-bus tools and transpose it such that gene
 
 ```{r}
 # Read the .mtx file
-sparse_matrix <- readMM("KB_BT_all/counts_unfiltered/cells_x_genes.mtx")
+sparse_matrix <- readMM("X:/Sequencing_data/Clark_seq_data_6-12-2024/01.RawData/BT_all/KB_BT_all/counts_unfiltered/cells_x_genes.mtx")
 sparse_matrix<-t(sparse_matrix)
 
 # Read the genes and barcodes files
-genes <- fread("KB_BT_all/counts_unfiltered/cells_x_genes.genes.names.txt", header = FALSE)
-barcodes <- fread("KB_BT_all/counts_unfiltered/cells_x_genes.barcodes.txt", header = FALSE)
+genes <- fread("X:/Sequencing_data/Clark_seq_data_6-12-2024/01.RawData/BT_all/KB_BT_all/counts_unfiltered/cells_x_genes.genes.names.txt", header = FALSE)
+barcodes <- fread("X:/Sequencing_data/Clark_seq_data_6-12-2024/01.RawData/BT_all/KB_BT_all/counts_unfiltered/cells_x_genes.barcodes.txt", header = FALSE)
 
 # Convert to vectors
 gene_names <- genes$V1
@@ -50,6 +50,7 @@ meaningful_names <- paste0("Cell", seq_along(barcode_names))
 rownames(sparse_matrix) <- gene_names
 colnames(sparse_matrix)<-meaningful_names
 Count_matrix <- as.matrix(sparse_matrix)
+write.csv(Count_matrix, 'X:/Sequencing_data/Clark_seq_data_6-12-2024/01.RawData/BT_all/Raw_count_matrix.csv')
 head(Count_matrix)
 
 ```
@@ -121,6 +122,10 @@ count per million (CPM) Normalization : (gene UMI count/total UMI count) x 1,000
 
 ```{r}
 seurat <- NormalizeData(seurat)
+normalized_counts <- GetAssayData(seurat, slot = "data")
+normalized_counts_matrix <- as.matrix(normalized_counts)
+write.csv(normalized_counts_matrix, 'X:/Sequencing_data/Clark_seq_data_6-12-2024/01.RawData/BT_all/Normalized_count_matrix.csv')
+head(normalized_counts_matrix)
 
 ```
 ## Select Highly variable genes
