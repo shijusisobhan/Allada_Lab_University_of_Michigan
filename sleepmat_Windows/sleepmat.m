@@ -3734,6 +3734,8 @@ end
 %screen_data_num=cell2mat(screen_data);
 
 try
+
+
    screen_data_T=cell2table(screen_data,...
      "VariableNames", ["GT" "sleep" "BN" "BL" "TA" "AW" "Latency" "SL" "SL_P" "SG" "SG_P" "SD_Latency"]);
 
@@ -3767,8 +3769,20 @@ try
     screen_data_SGP.GT num2cell(screen_data_SGP.SG_P)...
     screen_data_SDL.GT num2cell(screen_data_SDL.SD_Latency)];
 
-%     Result_all_SC=[Column_headers Column_headers1;Result_all_SC];
-% Result_all_SC=cell2table(Result_all_SC)
+
+       screen_data_headers_New={"Genotype" "Total_sleep"  "BoutNumber"  "BoutLength"  "Total_activity"...
+         "Activity/waking min"  "Latency" "Sleep_change_during_activation"  "Percentage_Sleep_change_during_activation"  "Sleep_change_after activation"  "Percentage_Sleep_change_after activation"  "Latency_after_activation"};
+    screen_data=[screen_data_headers_New;screen_data];
+
+
+%**************************************************************************************************************************************************************
+                                                 %%% P value calculation for SD experiments starts %%%%%%
+% *************************************************************************************************************************************************************
+
+try
+
+% Get data for the reference genotype
+ref_data = Result_all_SC(contains(Result_all_SC.Genotype, ref_genotype), :);
 
 Result_all_SC=cell2table(Result_all_SC,...
      "VariableNames", ["Genotype" "Run" "Monitor" "channel" "Triage" "Sleep_Day_min_" "BoutNumber_Day" "AverageBoutLength_Day" "TotalActivity_Day" ...
@@ -3781,13 +3795,9 @@ Result_all_SC=cell2table(Result_all_SC,...
 genotypes = unique(Result_all_SC.Genotype);
 
 % Initialize result storage
-results = table('Size', [numel(genotypes), 12], 'VariableTypes', {'string', 'double', 'double', 'double','double', 'double', 'double','double', 'double','double', 'double','double'}, ...
+results = table('Size', [numel(genotypes), 10], 'VariableTypes', {'string', 'double', 'double', 'double','double', 'double', 'double','double', 'double','double'}, ...
     'VariableNames', {'Genotype', 'Sleep_Pval', 'BoutNumber_Pval', 'BoutLength_Pval', 'TotalActivity_Pval', 'Activity_wakingMin_Pval', ...
-    'Latency_Pval', 'SleepLost_Pval','percetage_SL_Pval', 'SleepGain_Pval', 'percentage_SG_Pval' 'Latency_after_SD_Pval'});
-
-
-% Get data for the reference genotype
-ref_data = Result_all_SC(contains(Result_all_SC.Genotype, ref_genotype), :);
+    'Latency_Pval', 'Sleep_change_during_activataion_Pval', 'Sleep_change_after_activation_Pval', 'Latency_after_activation_Pval'});
 
 % Loop over each genotype to compare with the reference genotype
 for i = 1:numel(genotypes)
@@ -3803,11 +3813,11 @@ if isPresent
   TotalActivity_Pval = 1;
   Activity_wakingMin_Pval = 1;
   Latency_Pval = 1;
-  SleepLost_Pval = 1;
-  percetage_SL_Pval = 1;
-  SleepGain_Pval = 1;
-  percentage_SG_Pval = 1;
-  Latency_after_SD_Pval=1;
+  Sleep_change_during_activataion_Pval = 1;
+  percetage_Sleep_change_during_activataion_Pval = 1;
+  Sleep_change_after_activation_Pval = 1;
+  percentage_Sleep_change_after_activation_Pval = 1;
+  Latency_after_activation_Pval=1;
 else
     % Perform t-tests
     [~,Sleep_Pval] = ttest2(ref_data.Sleep_Day_min_, current_data.Sleep_Day_min_);
@@ -3816,11 +3826,12 @@ else
     [~, TotalActivity_Pval] = ttest2(ref_data.TotalActivity_Day, current_data.TotalActivity_Day);
     [~, Activity_wakingMin_Pval] = ttest2(ref_data.Activity_wakingMin, current_data.Activity_wakingMin);
     [~, Latency_Pval] = ttest2(ref_data.Latency_min_, current_data.Latency_min_);
-    [~, SleepLost_Pval] = ttest2(ref_data.SleepLost_min_, current_data.SleepLost_min_);
-    [~, percetage_SL_Pval] = ttest2(ref_data.PercentageSleepLost, current_data.PercentageSleepLost);
-    [~, SleepGain_Pval] = ttest2(ref_data.SleepGain_min_, current_data.SleepGain_min_);
-    [~, percentage_SG_Pval] = ttest2(ref_data.PercentageSleepGain, current_data.PercentageSleepGain);
-    [~, Latency_after_SD_Pval] = ttest2(ref_data.Latency_SD, current_data.Latency_SD);
+    [~, Sleep_change_during_activataion_Pval] = ttest2(ref_data.SleepLost_min_, current_data.SleepLost_min_);
+    [~, percetage_Sleep_change_during_activataion_Pval] = ttest2(ref_data.PercentageSleepLost, current_data.PercentageSleepLost);
+    %[~, percetage_Sleep_change_during_activataion_Pval] = 2;
+    [~, Sleep_change_after_activation_Pval] = ttest2(ref_data.SleepGain_min_, current_data.SleepGain_min_);
+    [~, percentage_Sleep_change_after_activation_Pval] = ttest2(ref_data.PercentageSleepGain, current_data.PercentageSleepGain);
+    [~, Latency_after_activation_Pval] = ttest2(ref_data.Latency_SD, current_data.Latency_SD);
 end
     % Store results
     results.Genotype(i) = genotypes{i};
@@ -3830,24 +3841,26 @@ end
     results.TotalActivity_Pval(i) = TotalActivity_Pval;
     results.Activity_wakingMin_Pval(i) = Activity_wakingMin_Pval;
     results.Latency_Pval(i) = Latency_Pval;
-    results.SleepLost_Pval(i) = SleepLost_Pval;
-    results.percetage_SL_Pval(i) = percetage_SL_Pval;
-    results.SleepGain_Pval(i) = SleepGain_Pval;
-    results.percentage_SG_Pval(i) = percentage_SG_Pval;
-    results.Latency_after_SD_Pval(i) = Latency_after_SD_Pval;
+    results.Sleep_change_during_activataion_Pval(i) = Sleep_change_during_activataion_Pval;
+    %results.percetage_Sleep_change_during_activataion_Pval(i) = percetage_Sleep_change_during_activataion_Pval;
+    results.Sleep_change_after_activation_Pval(i) = Sleep_change_after_activation_Pval;
+    %results.percentage_Sleep_change_after_activation_Pval(i) = percentage_Sleep_change_after_activation_Pval;
+    results.Latency_after_activation_Pval(i) = Latency_after_activation_Pval;
 
 end
 
-
-
-
-
-Pval_data_headers={"Genotype" "Sleep_Pval"  "BoutNumber_Pval"  "BoutLength_Pval" "TotalActivity_Pval"  "Activity_wakingMin_Pval"  "Latency_Pval"...
-         "SleepLost_Pval"  "percetage_SleepLoss_Pval"  "SleepGain_Pval"  "percentage_SleepGain_Pval" "Latency_SD_Pval"};
+% Pval_data_headers={"Genotype" "Sleep_Pval"  "BoutNumber_Pval"  "BoutLength_Pval" "TotalActivity_Pval"  "Activity_wakingMin_Pval"  "Latency_Pval"...
+%          "SleepLost_Pval"  "percetage_SleepLoss_Pval"  "SleepGain_Pval"  "percentage_SleepGain_Pval" "Latency_SD_Pval"};
 
     Pval_data_all=results;
 
-    
+end
+
+%**************************************************************************************************************************************************************
+                                                                 % END of P value calculation for SD %
+%**************************************************************************************************************************************************************
+
+
 
 catch
     screen_data_T=cell2table(screen_data,...
@@ -3871,8 +3884,22 @@ screen_data_all=[screen_data_headers;
     screen_data_AW.GT num2cell(screen_data_AW.AW)...
     screen_data_Latency.GT num2cell(screen_data_Latency.Latency)];
 
+
+       screen_data_headers_New={"Genotype" "Total_sleep"  "BoutNumber"  "BoutLength"  "Total_activity"...
+         "Activity/waking min"  "Latency"};
+
+       screen_data=[screen_data_headers_New;screen_data];
+
     %Result_all_SC=[Column_headers;Result_all_SC];
 
+
+%**************************************************************************************************************************************************************
+                                                 %%% P value calculation for non-SD experiments starts %%%%%%
+% *************************************************************************************************************************************************************
+
+try
+% Get data for the reference genotype
+ref_data = Result_all_SC(contains(Result_all_SC.Genotype, ref_genotype), :);
 
 Result_all_SC=cell2table(Result_all_SC,...
      "VariableNames", ["Genotype" "Run" "Monitor" "channel" "Triage" "Sleep_Day_min_" "BoutNumber_Day" "AverageBoutLength_Day" "TotalActivity_Day" ...
@@ -3888,9 +3915,6 @@ results = table('Size', [numel(genotypes), 7], 'VariableTypes', {'string', 'doub
     'VariableNames', {'Genotype', 'Sleep_Pval', 'BoutNumber_Pval', 'BoutLength_Pval', 'TotalActivity_Pval', 'Activity_wakingMin_Pval', ...
     'Latency_Pval'});
 
-
-% Get data for the reference genotype
-ref_data = Result_all_SC(contains(Result_all_SC.Genotype, ref_genotype), :);
 
 % Loop over each genotype to compare with the reference genotype
 for i = 1:numel(genotypes)
@@ -3916,7 +3940,7 @@ else
     [~, TotalActivity_Pval] = ttest2(ref_data.TotalActivity_Day, current_data.TotalActivity_Day);
     [~, Activity_wakingMin_Pval] = ttest2(ref_data.Activity_wakingMin, current_data.Activity_wakingMin);
     [~, Latency_Pval] = ttest2(ref_data.Latency_min_, current_data.Latency_min_);
-   
+
 end
     % Store results
     results.Genotype(i) = genotypes{i};
@@ -3929,13 +3953,15 @@ end
 
 end
 
-
-
 %Pval_data_headers={"Genotype" "Sleep_Pval" "BoutNumber_Pval" "BoutLength_Pval"  "TotalActivity_Pval" "Activity_wakingMin_Pval" "Latency_Pval"};
 
     Pval_data_all=results;
 
+%**************************************************************************************************************************************************************
+                                                 %%% P value calculation for SD experiments END %%%%%%
+% *************************************************************************************************************************************************************
 
+end
 
 end
 
@@ -3951,10 +3977,14 @@ path  = [path,Project_name,filesep,myfolder] ;
 %save_location_analysis_par=fullfile(path, strcat(Project_name,'screening_data.xls.xls'));
 
 save_location_screening=[path,filesep, strcat(Project_name,'_screening_data.xls')] ;
-writecell(screen_data_all, save_location_screening);
 
+%writecell(screen_data_all, save_location_screening);
+writecell(screen_data, save_location_screening);
+
+try
 save_location_Pval=[path,filesep, strcat(Project_name,'_Hits_pVal.xls')] ;
 writetable(Pval_data_all, save_location_Pval);
+end
 
 
 if strcmp(SD_select2, 'Yes')
@@ -4847,7 +4877,7 @@ save_location_per_sleep_gain=fullfile(Result_folder, strcat(Project_name,'_Perce
 save_location_per_sleep_gain=fullfile(Result_folder, strcat(Project_name,'_Percentage_Sleep_gain_24h.xls'));
 save_location_Latency_SD=fullfile(Result_folder, strcat(Project_name,'_Latency_SD_24h.xls'));
 
-save_location_SC=fullfile(Result_folder, strcat(Project_name,'_Results_for_screening.xls'));
+% save_location_SC=fullfile(Result_folder, strcat(Project_name,'_Results_for_screening.xls'));
 
 
  
