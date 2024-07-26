@@ -3781,14 +3781,14 @@ try
 
 try
 
-% Get data for the reference genotype
-ref_data = Result_all_SC(contains(Result_all_SC.Genotype, ref_genotype), :);
 
 Result_all_SC=cell2table(Result_all_SC,...
      "VariableNames", ["Genotype" "Run" "Monitor" "channel" "Triage" "Sleep_Day_min_" "BoutNumber_Day" "AverageBoutLength_Day" "TotalActivity_Day" ...
 "Activity_wakingMin"  "Latency_min_" "SleepLost_min_"  "PercentageSleepLost" ...
 "SleepGain_min_" "PercentageSleepGain"  "Latency_SD"]);
 
+% Get data for the reference genotype
+ref_data = Result_all_SC(contains(Result_all_SC.Genotype, ref_genotype), :);
 % Find the p values for the screen data with respect to refernce genotype(control)
 
 % Extract unique genotypes
@@ -3898,12 +3898,14 @@ screen_data_all=[screen_data_headers;
 % *************************************************************************************************************************************************************
 
 try
-% Get data for the reference genotype
-ref_data = Result_all_SC(contains(Result_all_SC.Genotype, ref_genotype), :);
 
 Result_all_SC=cell2table(Result_all_SC,...
      "VariableNames", ["Genotype" "Run" "Monitor" "channel" "Triage" "Sleep_Day_min_" "BoutNumber_Day" "AverageBoutLength_Day" "TotalActivity_Day" ...
 "Activity_wakingMin"  "Latency_min_"]);
+
+% Get data for the reference genotype
+ref_data = Result_all_SC(contains(Result_all_SC.Genotype, ref_genotype), :);
+
 
 % Find the p values for the screen data with respect to refernce genotype(control)
 
