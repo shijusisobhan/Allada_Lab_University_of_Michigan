@@ -442,7 +442,7 @@ end
 function Start_Callback(hObject, eventdata, handles)
 
 
-%try
+try
 
 oldmsgs = cellstr(get(handles.M_box,'String'));
 
@@ -3972,7 +3972,7 @@ end
 
 
 path = handles.path;
-myfolder = 'Screening_plot' ;   % new folder name 
+myfolder = 'Screening_results' ;   % new folder name 
 folder = mkdir([path,Project_name,filesep,myfolder]);
 path  = [path,Project_name,filesep,myfolder] ;
 
@@ -4917,7 +4917,7 @@ writecell(ed_result_avg_std_all,save_location_eduction);
 end
 
 try
-    writecellResult_all_anti(Result_all_anti,save_location_anticipation);
+    writecell(Result_all_anti,save_location_anticipation);
 end
 
 try
@@ -5100,11 +5100,11 @@ end
 disp('Analysis COMPLETED! Results exported to xls file')
 set(handles.M_box,'String',[oldmsgs;{'Analysis COMPLETED!'}] );drawnow
 
-% catch
-%     disp('Unknown Error! Please check the input(eg: genotype specification file, Monitor file, days...)')
-% set(handles.M_box,'String',[oldmsgs;{'Unknown Error! Please check the input(eg: genotype specification file, days...)'}] );drawnow
-% return;
-% end
+catch
+    disp('Unknown Error! Please check the input(eg: genotype specification file, Monitor file, days...)')
+set(handles.M_box,'String',[oldmsgs;{'Unknown Error! Please check the input(eg: genotype specification file, days...)'}] );drawnow
+return;
+end
     
 
 
