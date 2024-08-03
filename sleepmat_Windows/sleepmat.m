@@ -4979,14 +4979,16 @@ end
  
 end
 
-%% *********************************************************************************
+%% ************************************************************ ************ *********************************************************************************************************
+                                                                             %% Eduction Plot start%%
+%% ***********************************************************************************************************************************************************************************
 
+if strcmp(Eduction_select2, 'Yes')
 
 ed_result=Eduction_bar';
 
 ed_result_Ndays=Eduction_Ndays';
 
-try
  tp1=1:1:24-Photo_period;
 tp2=(24-Photo_period)+1:1:(24-Photo_period)+(2*Photo_period);
 tp3=(24-Photo_period)+(2*Photo_period)+1:1:48;
@@ -5011,7 +5013,6 @@ for i_plot=1:npc
     Normalized_err3=std_error_all((24-Photo_period)+(2*Photo_period)+1:48,i_plot);
     L3=zeros(size(Normalized_err3));% Lower limit
    
-    
 figure;
 h1=bar(tp1,bin_1(:,i_plot),1);
 set(h1,'FaceColor','k')
@@ -5031,15 +5032,6 @@ h3=bar(tp3,bin_3(:,i_plot),1);
 er3 = errorbar(tp3,bin_3(:,i_plot),L3, Normalized_err3,'k');
 set(er3,'linestyle','none');
  set(gca, 'xtick', 2:2:48);
- %set(gca, 'xtick', 2:0.5:24);
- 
-
- 
- 
- 
-%  Title_plot=[geno_type1{i_plot}, '  '  'N= ' num2str(N_active(i_plot))];
-%  title(Title_plot)
-%  
 
 New_GT=GT_New{i_plot};
 
@@ -5049,27 +5041,16 @@ New_GT=GT_New{i_plot};
    ylabel('Normalized activity / 30 min')
   xlabel('30 min bin for 24 hr')
   
-  
-% 
+
   figure;
   plot(ed_result_Ndays(:,i_plot))
   %title(geno_type1{i_plot}, num2str(N_active(i_plot)))
   title(Title_plot)
   ylabel('Normalized activity / 30 min')
   xlabel('Time( hr) ')
-%
-end
 
 end
 
-
-
-  
-
-
-    
-
-if strcmp(Eduction_select2, 'Yes')
 
 path = handles.path;   % mention your path 
 myfolder = 'Eduction figures' ;   % new folder name 
@@ -5089,7 +5070,7 @@ plot_name={'-plot1', '-plot2'};
         figure(k);
         temp=[path,filesep,GT_name{1},p_name,'.png'];
                 try
-        saveas(gca,temp1); 
+        saveas(gca,temp); 
         catch
             disp("Error!! Please check genotype name. Don't use backslash '\' or '>'  for genotype naming if you need figures")
                             set(handles.M_box,'String',[oldmsgs;{"Error!! Please check genotype name.  Don't use backslash '\' or '>' for genotype naming if you need figures"}] );drawnow
@@ -5108,6 +5089,11 @@ end
 
 
 end
+
+%% ************************************************************ ************ *********************************************************************************************************
+                                                                             %% Eduction Plot End %%
+%% ***********************************************************************************************************************************************************************************
+
 
 
 
