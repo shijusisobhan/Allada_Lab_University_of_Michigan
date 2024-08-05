@@ -26,7 +26,7 @@ New_file_location<-file.path(mainDir, subDir)
 
 data <- read_excel(file_path)
 
-new_column_names <- c("Run_number", "Monitor", "GT", "start_ch", "end_ch", "Analysis_date")
+new_column_names <- c("Run_number", "Monitor", "GT", "start_ch", "end_ch", "Analysis_date", "Triage date", "Control_GT")
 
 dataframes <- list()
 
@@ -60,7 +60,7 @@ rename_files <- function(run_number, folder_location) {
     if (file_extension == "xlsx" || file_extension == "xls") {
       df <- read_excel(file)  # Read file and exclude the header
       # Select the first six columns
-      df_selected <- df %>% select(1:6)
+      df_selected <- df %>% select(1:8)
       # Rename the columns
       colnames(df_selected) <- new_column_names
       
