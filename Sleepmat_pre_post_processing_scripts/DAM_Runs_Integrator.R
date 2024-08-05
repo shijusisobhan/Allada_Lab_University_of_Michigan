@@ -27,6 +27,7 @@ New_file_location<-file.path(mainDir, subDir)
 data <- read_excel(file_path)
 
 new_column_names <- c("Run_number", "Monitor", "GT", "start_ch", "end_ch", "Analysis_date")
+
 dataframes <- list()
 
 # Function to rename files in a folder
@@ -98,7 +99,7 @@ for (i in 1:nrow(data)) {
   
 }
 
-print("Files integration has been sucessfully completed")
+print("Files integration has been sucessfully completed and rsults are in the folder combined_Run_files")
 
 
 
