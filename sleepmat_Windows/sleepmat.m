@@ -3781,7 +3781,6 @@ try
 
 try
 
-
 Result_all_SC=cell2table(Result_all_SC,...
      "VariableNames", ["Genotype" "Run" "Monitor" "channel" "Triage" "Sleep_Day_min_" "BoutNumber_Day" "AverageBoutLength_Day" "TotalActivity_Day" ...
 "Activity_wakingMin"  "Latency_min_" "SleepLost_min_"  "PercentageSleepLost" ...
@@ -4301,10 +4300,15 @@ Title_N=[Title5 ' ' num2str(N_active)];
     anti_SE2= anti_std2/sqrt(N_active);
     
     
- 
+
+   
    Result_all_anti=[Result_all_anti;Column_headers_anti;sortederr_anti;sortederr_anti(1,1) head_mean Title_N num2cell(anti_mean2);sortederr_anti(1,1) head_std num2cell(anti_std2);sortederr_anti(1,1) head_SE num2cell(anti_SE2);num2cell(End_sp2_anti);Estar2_anti;num2cell(End_sp2_anti)];
+   
+   %% screening data for anticipation
+   %screen_data_anticipation=[sortederr_anti(1,1) num2cell(anti_mean2)];
+
  
- 
+%% *************************************************************
 GT_New_anti{igp_anti}=(err_anti(1, 1));
 New_GT_anti=GT_New_anti{igp_anti};
 
