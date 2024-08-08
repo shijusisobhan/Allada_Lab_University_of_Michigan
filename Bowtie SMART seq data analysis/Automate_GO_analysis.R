@@ -11,7 +11,7 @@ DEG<-read.csv("C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_siso
 gene_list<-DEG[which(DEG$log2FoldChange>0.6 & DEG$padj<0.05), 'ext_gene']
 #gene_list_kegg<-paste0('Dmel_',gene_list)
 
-  df$Name <- paste("Dr.", df$Name)
+ # df$Name <- paste("Dr.", df$Name)
 # Example gene list
 #gene_list <- c("Gene1", "Gene2", "Gene3")  # Replace with your gene list
 
@@ -74,6 +74,29 @@ colnames(GO_result_MF)[colnames(GO_result_MF) == "Description"] <- "Molecular_Fu
 
 
 
+#*******************************************************************************************
+library(gprofiler2)
+# Perform enrichment analysis
+gost_results <- gost(query = gene_list, 
+                     organism = "dmelanogaster",  # organism code for Drosophila melanogaster
+                     sources = c("KEGG"))
+
+Kegg_pathway<-data.frame(gost_results$result)
+
+Kegg_pathway<-Kegg_pathway[,]
+
+
+#*****************************************************************************************
+
+library(ReactomePA)
+
+# Perform Reactome pathway analysis
+reactome_results <- enrichPathway(gene = gene_entrez$ENTREZID, 
+                                  organism = "fly",  # organism code for Drosophila
+                                  pvalueCutoff = 0.05)
+
+
+Kegg_pathway_results<-data.frame(reactome_results)
 
 
 library(openxlsx)
