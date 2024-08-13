@@ -32,9 +32,11 @@ Count_matrix <- Count_matrix[rowSums(Count_matrix) > 0, ]
 ## ********************************************************************************************************    
 
 # Normalize Bulk RNA-seq Data (DESeq2):
+#bulk_data <- read.csv("C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/Drosophila/Fat body data/Whole_Brain_Vs_Fatbody/Estimated_counts_MB247.csv")
 
-bulk_data <- read.csv("C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/Drosophila/Fat body data/Whole_Brain_Vs_Fatbody/Estimated_counts_MB247.csv")
-rawCounts<-bulk_data[,1:2]
+bulk_data <- read.csv("C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/Drosophila/Fat body data/Whole_Brain_Vs_Fatbody/Estimated_counts_ME.csv")
+
+rawCounts<-bulk_data[,c(1,8,9,10)]
 
 rawCounts_bulk<-rawCounts[-1]
 rownames(rawCounts_bulk)<-rawCounts[,1]
@@ -47,29 +49,32 @@ rawCounts_bulk <- subset(rawCounts_bulk,rawCounts_bulk>0)
 
 combined_data<-merge(Count_matrix,rawCounts_bulk,by = "row.names", all = F)
 
-#*********************************************************************************************  
 library(DESeq2)
-
+#*********************************************************************************************  
 # Now do the DGE analysis using Deseq2 with individual cells
 # for all cell
- geneID_Combined<-combined_data[1] 
+
+ geneID_Combined<-combined_data[1]
  rawCounts_Combined<-combined_data[-1]
- sampleData_Combined<-data.frame(sample=(colnames(rawCounts_Combined)), condition=c(rep("BT",6), rep("MB247",1)))
+ #sampleData_Combined<-data.frame(sample=(colnames(rawCounts_Combined)), condition=c(rep("BT",6), rep("MB247",1)))
+ 
+ sampleData_Combined<-data.frame(sample=(colnames(rawCounts_Combined)), condition=c(rep("BT",6), rep("R5_MC",3)))
 
  #*******************************************************************************************************
-# for one cell
-# rawCounts_BT_WB<-combined_data[-c(2:5,7)] # for one cell
-# rawCounts_BT_WB<-combined_data[-c(2:6)] # for one cell
-
-
-# Exclude zero conts from each individual BT cells###################
-# rawCounts_BT_WB<-rawCounts_BT_WB[rawCounts_BT_WB[,2] !=0,] # for one cell
+ # for one cell
+#  rawCounts_Combined<-combined_data[-c(3:7)] # for one cell
+#  #rawCounts_Combined<-combined_data[-c(2:6)] # for one cell
+#  
+#  
+#  # Exclude zero conts from each individual BT cells###################
+#  rawCounts_Combined<-rawCounts_Combined[rawCounts_Combined[,2] !=0,] # for one cell
+#  
+# geneID_Combined<-rawCounts_Combined[1]
+# rawCounts_Combined<-rawCounts_Combined[-1]
+#  
+#  
+#  sampleData_Combined<-data.frame(sample=(colnames(rawCounts_Combined)), condition=c(rep("BT",1), rep("MB247",1)))
  
- #geneID_Combined<-rawCounts_Combined[1]
-# rawCounts_BT_WB<-rawCounts_BT_WB[-1]
-
-
-#sampleData_BT_WB<-data.frame(sample=(colnames(rawCounts_BT_WB)), condition=c(rep("BT",1), rep("WB",3)))
 
  #*************************************************************************************************************
 
@@ -85,7 +90,7 @@ rownames(sampleData_Combined) <- sampleData_Combined$sample
 sampleData_Combined <- sampleData_Combined[-1]
 
 sampleData_Combined$condition <- factor(sampleData_Combined$condition, 
-                                     levels=c("BT","MB247"))
+                                     levels=c("BT","R5_MC"))
 # Create the DEseq2DataSet object
 deseq2Data_Combined <- DESeqDataSetFromMatrix(countData=rawCounts_Combined, colData=sampleData_Combined, design= ~condition)
 deseq2Data_Combined <- DESeq(deseq2Data_Combined)
@@ -96,7 +101,7 @@ plotPCA(vsd)
 
 #deseq2Results_Combined <- results(deseq2Data_Combined)
 
-deseq2Results_Combined <- results(deseq2Data_Combined, contrast=c('condition','BT', 'MB247')) 
+deseq2Results_Combined <- results(deseq2Data_Combined, contrast=c('condition','BT', 'R5_MC')) 
 # contrast = c('factorName','numeratorLevel','denominatorLevel')
 
 
@@ -132,7 +137,9 @@ N_significant
 N_UP
 N_DOWN
 
-top3_genes<- test_table[1:3, "ext_gene"]
+UP_genes<-test_table[test_table$diffexpressed=="UP",]
+Down_genes<-test_table[test_table$diffexpressed=="DOWN",]
+top_genes<- UP_genes[1:3,]
 
 library('ggplot2')
 library(ggrepel)
@@ -140,13 +147,12 @@ ggplot(test_table) + geom_point(aes(x = log2FoldChange, y = neg_log10_qval, col=
   geom_vline(xintercept=0, col="black",  linetype="dashed")+
   scale_color_manual(values=c("blue", "black", "red"))+
   labs(x = "log2(FC)", y="-log10(q)", colour="DEG") +
-  geom_text_repel(data = subset(test_table, ext_gene == top3_genes), 
-                  aes(x = log2FoldChange, y = neg_log10_qval, label = ext_gene), color = "black")
-
-
+  geom_text_repel(data = top_genes, 
+                  aes(x = log2FoldChange, y = neg_log10_qval, label = ext_gene), color = "black",
+                  min.segment.length = unit(0, 'lines'), nudge_y = 20)
 
 
 write.csv(as.data.frame(resOrdered), 
-          file="C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/sRNA Seq/Bowtai_SMARTseq_data_analysis/DEG_BT_cell6vsMB247_ZT0.csv")
+          file="C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/sRNA Seq/Bowtai_SMARTseq_data_analysis/DEG_BT_allvsR5_MC.csv")
 
 
