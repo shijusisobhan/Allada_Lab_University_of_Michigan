@@ -54,26 +54,22 @@ library(DESeq2)
 # Now do the DGE analysis using Deseq2 with individual cells
 # for all cell
 
- geneID_Combined<-combined_data[1]
- rawCounts_Combined<-combined_data[-1]
- #sampleData_Combined<-data.frame(sample=(colnames(rawCounts_Combined)), condition=c(rep("BT",6), rep("MB247",1)))
- 
- sampleData_Combined<-data.frame(sample=(colnames(rawCounts_Combined)), condition=c(rep("BT",6), rep("R5_MC",3)))
+ # geneID_Combined<-combined_data[1]
+ # rawCounts_Combined<-combined_data[-1]
+ # #sampleData_Combined<-data.frame(sample=(colnames(rawCounts_Combined)), condition=c(rep("BT",6), rep("MB247",1)))
+ # 
+ # sampleData_Combined<-data.frame(sample=(colnames(rawCounts_Combined)), condition=c(rep("BT",6), rep("R5_MC",3)))
 
  #*******************************************************************************************************
  # for one cell
-#  rawCounts_Combined<-combined_data[-c(3:7)] # for one cell
-#  #rawCounts_Combined<-combined_data[-c(2:6)] # for one cell
-#  
-#  
+  rawCounts_Combined<-combined_data[-c(2:6)] # for one cell
+  #rawCounts_Combined<-combined_data[-c(2:6)] # for one cell
+ 
 #  # Exclude zero conts from each individual BT cells###################
-#  rawCounts_Combined<-rawCounts_Combined[rawCounts_Combined[,2] !=0,] # for one cell
-#  
-# geneID_Combined<-rawCounts_Combined[1]
-# rawCounts_Combined<-rawCounts_Combined[-1]
-#  
-#  
-#  sampleData_Combined<-data.frame(sample=(colnames(rawCounts_Combined)), condition=c(rep("BT",1), rep("MB247",1)))
+  rawCounts_Combined<-rawCounts_Combined[rawCounts_Combined[,2] !=0,] # for one cell
+  geneID_Combined<-rawCounts_Combined[1]
+  rawCounts_Combined<-rawCounts_Combined[-1]
+  sampleData_Combined<-data.frame(sample=(colnames(rawCounts_Combined)), condition=c(rep("BT",1), rep("R5_MC",3)))
  
 
  #*************************************************************************************************************
@@ -152,7 +148,9 @@ ggplot(test_table) + geom_point(aes(x = log2FoldChange, y = neg_log10_qval, col=
                   min.segment.length = unit(0, 'lines'), nudge_y = 20)
 
 
-write.csv(as.data.frame(resOrdered), 
-          file="C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/sRNA Seq/Bowtai_SMARTseq_data_analysis/DEG_BT_allvsR5_MC.csv")
+
+
+write.csv(test_table[which(test_table$padj<0.05 & abs(test_table$log2FoldChange)>0.6),], 
+          file="C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/sRNA Seq/Bowtai_SMARTseq_data_analysis/DEG_BT6vsR5_MC.csv")
 
 
