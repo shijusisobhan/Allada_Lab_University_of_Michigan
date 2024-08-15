@@ -59,18 +59,17 @@ library(DESeq2)
   # sampleData_BT_WB<-data.frame(sample=(colnames(rawCounts_BT_WB)), condition=c(rep("BT",6), rep("WB",3)))
 
 # for one cell
-rawCounts_BT_WB<-combined_data[-c(2:5,7)] # for one cell
+#rawCounts_BT_WB<-combined_data[-c(2:5,7)] # for one cell
 rawCounts_BT_WB<-combined_data[-c(2:6)] # for one cell
 
 
  # Exclude zero conts from each individual BT cells###################
-# rawCounts_BT_WB<-rawCounts_BT_WB[rawCounts_BT_WB[,2] !=0,] # for one cell
-# geneID_BT_WB<-rawCounts_BT_WB[1]
-# rawCounts_BT_WB<-rawCounts_BT_WB[-1]
+rawCounts_BT_WB<-rawCounts_BT_WB[rawCounts_BT_WB[,2] !=0,] # for one cell
+geneID_BT_WB<-rawCounts_BT_WB[1]
+rawCounts_BT_WB<-rawCounts_BT_WB[-1]
 
 
-#sampleData_BT_WB<-data.frame(sample=(colnames(rawCounts_BT_WB)), condition=c(rep("BT",1), rep("WB",3)))
-
+sampleData_BT_WB<-data.frame(sample=(colnames(rawCounts_BT_WB)), condition=c(rep("BT",1), rep("WB",3)))
 
 rownames(rawCounts_BT_WB) <- geneID_BT_WB$Row.names
 rawCounts_BT_WB <- as.matrix(rawCounts_BT_WB)
@@ -115,6 +114,15 @@ test_table$ext_gene<-row.names(test_table)
 
 test_table$neg_log10_qval<- -log10(test_table$padj)
 
+#********************************************************************************************
+# To exclude neg_log10_qval =inf
+finite_values<-test_table$neg_log10_qval[is.finite(test_table$neg_log10_qval)]
+
+max_value<-max(finite_values) #Set a Cap on the Maximum Value
+test_table$neg_log10_qval<-pmin(test_table$neg_log10_qval,max_value)
+#****************************************************************************** *************
+
+
 sig_level<-0.05
 
 test_table$diffexpressed <- "Not sig"
@@ -131,7 +139,9 @@ N_significant
 N_UP
 N_DOWN
 
-top3_genes<- test_table[1:3, "ext_gene"]
+UP_genes<-test_table[test_table$diffexpressed=="UP",]
+Down_genes<-test_table[test_table$diffexpressed=="DOWN",]
+top_genes<- UP_genes[1:3,]
 
 library('ggplot2')
 library(ggrepel)
@@ -139,9 +149,9 @@ ggplot(test_table) + geom_point(aes(x = log2FoldChange, y = neg_log10_qval, col=
   geom_vline(xintercept=0, col="black",  linetype="dashed")+
   scale_color_manual(values=c("blue", "black", "red"))+
   labs(x = "log2(FC)", y="-log10(q)", colour="DEG") +
-  geom_text_repel(data = subset(test_table, ext_gene == top3_genes), 
-                  aes(x = log2FoldChange, y = neg_log10_qval, label = ext_gene), color = "black")
-
+  geom_text_repel(data = top_genes, 
+                  aes(x = log2FoldChange, y = neg_log10_qval, label = ext_gene), color = "black",
+                  min.segment.length = unit(0, 'lines'), nudge_y = 20)
 
 
 
