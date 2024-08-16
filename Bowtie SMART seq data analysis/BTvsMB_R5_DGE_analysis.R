@@ -32,11 +32,12 @@ Count_matrix <- Count_matrix[rowSums(Count_matrix) > 0, ]
 ## ********************************************************************************************************    
 
 # Normalize Bulk RNA-seq Data (DESeq2):
-#bulk_data <- read.csv("C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/Drosophila/Fat body data/Whole_Brain_Vs_Fatbody/Estimated_counts_MB247.csv")
+bulk_data <- read.csv("C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/Drosophila/Fat body data/Whole_Brain_Vs_Fatbody/Estimated_counts_MB247.csv")
 
-bulk_data <- read.csv("C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/Drosophila/Fat body data/Whole_Brain_Vs_Fatbody/Estimated_counts_ME.csv")
+# bulk_data <- read.csv("C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/Drosophila/Fat body data/Whole_Brain_Vs_Fatbody/Estimated_counts_ME.csv")
 
-rawCounts<-bulk_data[,c(1,8,9,10)]
+#rawCounts<-bulk_data[,c(1,8,9,10)] # for R5_MC
+rawCounts<-bulk_data[,c(1,2,8,9)] # for MB247 ZT0 +ZT12
 
 rawCounts_bulk<-rawCounts[-1]
 rownames(rawCounts_bulk)<-rawCounts[,1]
@@ -54,15 +55,15 @@ library(DESeq2)
 # Now do the DGE analysis using Deseq2 with individual cells
 # for all cell
 
- # geneID_Combined<-combined_data[1]
- # rawCounts_Combined<-combined_data[-1]
- # #sampleData_Combined<-data.frame(sample=(colnames(rawCounts_Combined)), condition=c(rep("BT",6), rep("MB247",1)))
- # 
- # sampleData_Combined<-data.frame(sample=(colnames(rawCounts_Combined)), condition=c(rep("BT",6), rep("R5_MC",3)))
+ geneID_Combined<-combined_data[1]
+ rawCounts_Combined<-combined_data[-1]
+ #sampleData_Combined<-data.frame(sample=(colnames(rawCounts_Combined)), condition=c(rep("BT",6), rep("MB247",1)))
+
+ sampleData_Combined<-data.frame(sample=(colnames(rawCounts_Combined)), condition=c(rep("BT",6), rep("R5_MC",3)))
 
  #*******************************************************************************************************
  # for one cell
-  rawCounts_Combined<-combined_data[-c(2:6)] # for one cell
+  #rawCounts_Combined<-combined_data[-c(2:6)] # for one cell
   #rawCounts_Combined<-combined_data[-c(2:6)] # for one cell
  
 #  # Exclude zero conts from each individual BT cells###################
