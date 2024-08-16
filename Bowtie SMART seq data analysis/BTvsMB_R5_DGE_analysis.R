@@ -40,7 +40,8 @@ bulk_data <- read.csv("C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Sh
 
 #rawCounts<-bulk_data[,c(1,8,9,10)] # for R5_MC
 #rawCounts<-bulk_data[,c(1,2,8,9)] # for MB247 ZT0 +ZT12
-rawCounts<-bulk_data[,c(1:4)] # for fACS R85 ZT0
+#rawCounts<-bulk_data[,c(1:4)] # for fACS R85 ZT0
+rawCounts<-bulk_data[,c(1:7)] # for fACS R85 ZT0+ZT12
 
 rawCounts_bulk<-rawCounts[-1]
 rownames(rawCounts_bulk)<-rawCounts[,1]
@@ -61,9 +62,9 @@ library(DESeq2)
  geneID_Combined<-combined_data[1]
  rawCounts_Combined<-combined_data[-1]
  
- second_variable<-"R85_ZT0" # provide second variable name (eg: "MB247")
+ second_variable<-"R85_ZT0+ZT12" # provide second variable name (eg: "MB247")
  
- sampleData_Combined<-data.frame(sample=(colnames(rawCounts_Combined)), condition=c(rep("BT",6), rep(second_variable,3)))
+ sampleData_Combined<-data.frame(sample=(colnames(rawCounts_Combined)), condition=c(rep("BT",6), rep(second_variable,6)))
 
  #sampleData_Combined<-data.frame(sample=(colnames(rawCounts_Combined)), condition=c(rep("BT",6), rep("R5_MC",3)))
 
@@ -102,8 +103,6 @@ vsd <- vst(deseq2Data_Combined, blind=FALSE)
 plotPCA(vsd)
 
 
-#deseq2Results_Combined <- results(deseq2Data_Combined)
-
 deseq2Results_Combined <- results(deseq2Data_Combined, contrast=c('condition','BT', second_variable)) 
 # contrast = c('factorName','numeratorLevel','denominatorLevel')
 
@@ -111,12 +110,6 @@ deseq2Results_Combined <- results(deseq2Data_Combined, contrast=c('condition','B
 deseq2Results_Combined<-na.omit(deseq2Results_Combined)
 
 resOrdered <- deseq2Results_Combined[order(deseq2Results_Combined$pvalue),]
-
-# Normalized_sigle_bulk <- counts(deseq2Data_Combined, normalized = TRUE)
-# write.csv(as.data.frame(Normalized_sigle_bulk),
-#           file="X:/Sequencing_data/Clark_seq_data_6-12-2024/01.RawData/BT_all/Normalized_data_sigle_bulk.csv")
-
-
 
 
 test_table<-as.data.frame(resOrdered)
@@ -128,9 +121,9 @@ sig_level<-0.05
 
 test_table$diffexpressed <- "Not sig"
 # if log2Foldchange > 0 and qvalue < 0.1, set as "UP" 
-test_table$diffexpressed[test_table$log2FoldChange > 0.6 & test_table$padj < sig_level] <- "UP"
+test_table$diffexpressed[test_table$log2FoldChange > 1 & test_table$padj < sig_level] <- "UP"
 # if log2Foldchange < -0.6 and pvalue < 0.05, set as "DOWN"
-test_table$diffexpressed[test_table$log2FoldChange < -0.6 & test_table$padj < sig_level] <- "DOWN"
+test_table$diffexpressed[test_table$log2FoldChange < -1 & test_table$padj < sig_level] <- "DOWN"
 
 N_significant<-length(test_table$diffexpressed[test_table$diffexpressed !="Not sig"])
 N_UP<-length(test_table$diffexpressed[test_table$diffexpressed =="UP"])
@@ -157,7 +150,7 @@ ggplot(test_table) + geom_point(aes(x = log2FoldChange, y = neg_log10_qval, col=
 
 
 
-write.csv(test_table[which(test_table$padj<0.05 & abs(test_table$log2FoldChange)>0.6),], 
-          file="C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/sRNA Seq/Bowtai_SMARTseq_data_analysis/DEG_BTvsMB247_Z0_12.csv")
+write.csv(test_table[which(test_table$padj<0.05 & abs(test_table$log2FoldChange)>1),], 
+          file="C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/sRNA Seq/Bowtai_SMARTseq_data_analysis/DEG_BTvsR85_ZT0_ZT12.csv")
 
 
