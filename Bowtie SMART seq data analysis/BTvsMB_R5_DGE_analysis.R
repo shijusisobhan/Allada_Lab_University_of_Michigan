@@ -32,20 +32,20 @@ Count_matrix <- Count_matrix[rowSums(Count_matrix) > 0, ]
 ## ********************************************************************************************************    
 
 # Normalize Bulk RNA-seq Data (DESeq2):
-#bulk_data <- read.csv("C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/Drosophila/Fat body data/Whole_Brain_Vs_Fatbody/Estimated_counts_MB247.csv")
+bulk_data <- read.csv("C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/Drosophila/Fat body data/Whole_Brain_Vs_Fatbody/Estimated_counts_MB247.csv")
 
 #bulk_data <- read.csv("C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/Drosophila/Fat body data/Whole_Brain_Vs_Fatbody/Estimated_counts_R85_ZT0vsZT12.csv")
 
 #bulk_data <- read.csv("C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/Drosophila/Fat body data/Whole_Brain_Vs_Fatbody/Estimated_counts_ME.csv")
 
-bulk_data <- read.csv("C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/Drosophila/Fat body data/Whole_Brain_Vs_Fatbody/Estimated_counts_vGAT.csv")
+#bulk_data <- read.csv("C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/Drosophila/Fat body data/Whole_Brain_Vs_Fatbody/Estimated_counts_vGAT.csv")
 
 
 #rawCounts<-bulk_data[,c(1,8,9,10)] # for R5_MC
-#rawCounts<-bulk_data[,c(1,2,8,9)] # for MB247 ZT0 +ZT12
+rawCounts<-bulk_data[,c(1,2,8,9)] # for MB247 ZT0 +ZT12
 #rawCounts<-bulk_data[,c(1:4)] # for fACS R85 ZT0
 #rawCounts<-bulk_data[,c(1:7)] # for fACS R85 ZT0+ZT12
-rawCounts<-bulk_data[,c(1,5:10)] # for vGAT ZT0
+#rawCounts<-bulk_data[,c(1,5:10)] # for vGAT ZT0
 
 rawCounts_bulk<-rawCounts[-1]
 rownames(rawCounts_bulk)<-rawCounts[,1]
@@ -66,9 +66,9 @@ library(DESeq2)
  geneID_Combined<-combined_data[1]
  rawCounts_Combined<-combined_data[-1]
  
- second_variable<-"vGAT_ZT0+ZT12" # provide second variable name (eg: "MB247")
+ second_variable<-"MB247_ZT0+ZT12" # provide second variable name (eg: "MB247")
  
- sampleData_Combined<-data.frame(sample=(colnames(rawCounts_Combined)), condition=c(rep("BT",6), rep(second_variable,6)))
+ sampleData_Combined<-data.frame(sample=(colnames(rawCounts_Combined)), condition=c(rep("BT",6), rep(second_variable,3)))
 
  #sampleData_Combined<-data.frame(sample=(colnames(rawCounts_Combined)), condition=c(rep("BT",6), rep("R5_MC",3)))
 
@@ -155,6 +155,6 @@ ggplot(test_table) + geom_point(aes(x = log2FoldChange, y = neg_log10_qval, col=
 
 
 write.csv(test_table[which(test_table$padj<0.05 & abs(test_table$log2FoldChange)>1),], 
-          file="C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/sRNA Seq/Bowtai_SMARTseq_data_analysis/DEG_BTvsvGAT_ZT0_ZT12.csv")
+          file="C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/sRNA Seq/Bowtai_SMARTseq_data_analysis/DEG_BTvsMB247_ZT0_ZT12.csv")
 
 
