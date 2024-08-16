@@ -34,14 +34,18 @@ Count_matrix <- Count_matrix[rowSums(Count_matrix) > 0, ]
 # Normalize Bulk RNA-seq Data (DESeq2):
 #bulk_data <- read.csv("C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/Drosophila/Fat body data/Whole_Brain_Vs_Fatbody/Estimated_counts_MB247.csv")
 
-bulk_data <- read.csv("C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/Drosophila/Fat body data/Whole_Brain_Vs_Fatbody/Estimated_counts_R85_ZT0vsZT12.csv")
+#bulk_data <- read.csv("C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/Drosophila/Fat body data/Whole_Brain_Vs_Fatbody/Estimated_counts_R85_ZT0vsZT12.csv")
 
 #bulk_data <- read.csv("C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/Drosophila/Fat body data/Whole_Brain_Vs_Fatbody/Estimated_counts_ME.csv")
+
+bulk_data <- read.csv("C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/Drosophila/Fat body data/Whole_Brain_Vs_Fatbody/Estimated_counts_vGAT.csv")
+
 
 #rawCounts<-bulk_data[,c(1,8,9,10)] # for R5_MC
 #rawCounts<-bulk_data[,c(1,2,8,9)] # for MB247 ZT0 +ZT12
 #rawCounts<-bulk_data[,c(1:4)] # for fACS R85 ZT0
-rawCounts<-bulk_data[,c(1:7)] # for fACS R85 ZT0+ZT12
+#rawCounts<-bulk_data[,c(1:7)] # for fACS R85 ZT0+ZT12
+rawCounts<-bulk_data[,c(1,5:7)] # for vGAT ZT0
 
 rawCounts_bulk<-rawCounts[-1]
 rownames(rawCounts_bulk)<-rawCounts[,1]
