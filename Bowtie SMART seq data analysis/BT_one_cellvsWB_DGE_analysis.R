@@ -48,22 +48,24 @@ rawCounts_bulk <- rawCounts_bulk[rowSums(rawCounts_bulk) > 0, ]
 combined_data<-merge(Count_matrix,rawCounts_bulk,by = "row.names", all = F)
 
 #*********************************************************************************************  
+#*
 library(DESeq2)
 
 # Now do the DGE analysis using Deseq2 with individual cells
+# for all cell
 
 # geneID_BT_WB<-combined_data[1]
+# rawCounts_BT_WB<-combined_data[-1]
+# sampleData_BT_WB<-data.frame(sample=(colnames(rawCounts_BT_WB)), condition=c(rep("BT",6), rep("WB",3)))
 
-# for all cell
-  # rawCounts_BT_WB<-combined_data[-1]
-  # sampleData_BT_WB<-data.frame(sample=(colnames(rawCounts_BT_WB)), condition=c(rep("BT",6), rep("WB",3)))
+# *************************************************************************************************************
 
 # for one cell
-#rawCounts_BT_WB<-combined_data[-c(2:5,7)] # for one cell
+
 rawCounts_BT_WB<-combined_data[-c(2:6)] # for one cell
+# rawCounts_BT_WB<-combined_data[-c(2:6)] # for one cell
 
-
- # Exclude zero conts from each individual BT cells###################
+## Exclude zero conts from each individual BT cells###################
 rawCounts_BT_WB<-rawCounts_BT_WB[rawCounts_BT_WB[,2] !=0,] # for one cell
 geneID_BT_WB<-rawCounts_BT_WB[1]
 rawCounts_BT_WB<-rawCounts_BT_WB[-1]
@@ -71,6 +73,7 @@ rawCounts_BT_WB<-rawCounts_BT_WB[-1]
 
 sampleData_BT_WB<-data.frame(sample=(colnames(rawCounts_BT_WB)), condition=c(rep("BT",1), rep("WB",3)))
 
+# *****************************************************************************************
 rownames(rawCounts_BT_WB) <- geneID_BT_WB$Row.names
 rawCounts_BT_WB <- as.matrix(rawCounts_BT_WB)
 rawCounts_BT_WB<-round(rawCounts_BT_WB, digits=0)
@@ -94,7 +97,8 @@ plotPCA(vsd)
 
 #deseq2Results_BT_WB <- results(deseq2Data_BT_WB)
 
-deseq2Results_BT_WB <- results(deseq2Data_BT_WB, contrast=c('condition','BT', 'WB')) 
+deseq2Results_BT_WB <- results(deseq2Data_BT_WB, contrast=c('condition','BT', 'WB'))
+
 # contrast = c('factorName','numeratorLevel','denominatorLevel')
 
 
@@ -105,9 +109,6 @@ resOrdered <- deseq2Results_BT_WB[order(deseq2Results_BT_WB$pvalue),]
 # Normalized_sigle_bulk <- counts(deseq2Data_BT_WB, normalized = TRUE)
 # write.csv(as.data.frame(Normalized_sigle_bulk),
 #           file="X:/Sequencing_data/Clark_seq_data_6-12-2024/01.RawData/BT_all/Normalized_data_sigle_bulk.csv")
-
-
-
 
 test_table<-as.data.frame(resOrdered)
 test_table$ext_gene<-row.names(test_table)
@@ -127,9 +128,9 @@ sig_level<-0.05
 
 test_table$diffexpressed <- "Not sig"
 # if log2Foldchange > 0 and qvalue < 0.1, set as "UP" 
-test_table$diffexpressed[test_table$log2FoldChange > 0.6 & test_table$padj < sig_level] <- "UP"
+test_table$diffexpressed[test_table$log2FoldChange > 1 & test_table$padj < sig_level] <- "UP"
 # if log2Foldchange < -0.6 and pvalue < 0.05, set as "DOWN"
-test_table$diffexpressed[test_table$log2FoldChange < -0.6 & test_table$padj < sig_level] <- "DOWN"
+test_table$diffexpressed[test_table$log2FoldChange < -1 & test_table$padj < sig_level] <- "DOWN"
 
 N_significant<-length(test_table$diffexpressed[test_table$diffexpressed !="Not sig"])
 N_UP<-length(test_table$diffexpressed[test_table$diffexpressed =="UP"])
@@ -153,9 +154,8 @@ ggplot(test_table) + geom_point(aes(x = log2FoldChange, y = neg_log10_qval, col=
                   aes(x = log2FoldChange, y = neg_log10_qval, label = ext_gene), color = "black",
                   min.segment.length = unit(0, 'lines'), nudge_y = 20)
 
+write.csv(test_table[which(test_table$padj<0.05 & abs(test_table$log2FoldChange)>1),], 
+          file="C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/sRNA Seq/Bowtai_SMARTseq_data_analysis/DEG_BT6vsWB_ZT0.csv")
 
-
-write.csv(as.data.frame(resOrdered), 
-          file="X:/Sequencing_data/Clark_seq_data_6-12-2024/01.RawData/BT_all/DEG_BT_cell6vsWB_ZT0.csv")
 
 
