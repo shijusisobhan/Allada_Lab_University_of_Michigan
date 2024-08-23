@@ -2,31 +2,31 @@ rm(list=ls())
 
 library(Seurat)
 
-# Create a Seurat object
-counts <- Read10X(data.dir = "X:/Sequencing_data/scRNA_seq_JM_8_14-2024/scRNA_11358-JM/10x_analysis_11358-JM/Sample_11358-JM-1/filtered_feature_bc_matrix/")
-vGAT_ZT0_1 <- CreateSeuratObject(counts, project="vGAT_ZT0_1")
-
-counts <- Read10X(data.dir = "X:/Sequencing_data/scRNA_seq_JM_8_14-2024/scRNA_11358-JM/10x_analysis_11358-JM/Sample_11358-JM-2/filtered_feature_bc_matrix/")
-vGAT_ZT0_2 <- CreateSeuratObject(counts, project="vGAT_ZT0_2")
-
-counts <- Read10X(data.dir = "X:/Sequencing_data/scRNA_seq_JM_8_14-2024/scRNA_11363-JM/10x_analysis_11363-JM/Sample_11363-JM-1/filtered_feature_bc_matrix/")
-vGAT_ZT12_1 <- CreateSeuratObject(counts, project="vGAT_ZT12_1")
-
-counts <- Read10X(data.dir = "X:/Sequencing_data/scRNA_seq_JM_8_14-2024/scRNA_11363-JM/10x_analysis_11363-JM/Sample_11363-JM-2/filtered_feature_bc_matrix/")
-vGAT_ZT12_2 <- CreateSeuratObject(counts, project="vGAT_ZT12_2")
-
-counts <- Read10X(data.dir = "X:/Sequencing_data/scRNA_seq_JM_8_14-2024/scRNA_11373-JM/10x_analysis_11373-JM/Sample_11373-JM-1/filtered_feature_bc_matrix/")
-vGAT_ZT0SD_1 <- CreateSeuratObject(counts, project="vGAT_ZT0SD_1")
-
-counts <- Read10X(data.dir = "X:/Sequencing_data/scRNA_seq_JM_8_14-2024/scRNA_11373-JM/10x_analysis_11373-JM/Sample_11373-JM-2/filtered_feature_bc_matrix/")
-vGAT_ZT0SD_2 <- CreateSeuratObject(counts, project="vGAT_ZT0SD_2")
+# # Create a Seurat object
+# counts <- Read10X(data.dir = "X:/Sequencing_data/scRNA_seq_JM_8_14-2024/scRNA_11358-JM/10x_analysis_11358-JM/Sample_11358-JM-1/filtered_feature_bc_matrix/")
+# vGAT_ZT0_1 <- CreateSeuratObject(counts, project="vGAT_ZT0_1")
+# 
+# counts <- Read10X(data.dir = "X:/Sequencing_data/scRNA_seq_JM_8_14-2024/scRNA_11358-JM/10x_analysis_11358-JM/Sample_11358-JM-2/filtered_feature_bc_matrix/")
+# vGAT_ZT0_2 <- CreateSeuratObject(counts, project="vGAT_ZT0_2")
+# 
+# counts <- Read10X(data.dir = "X:/Sequencing_data/scRNA_seq_JM_8_14-2024/scRNA_11363-JM/10x_analysis_11363-JM/Sample_11363-JM-1/filtered_feature_bc_matrix/")
+# vGAT_ZT12_1 <- CreateSeuratObject(counts, project="vGAT_ZT12_1")
+# 
+# counts <- Read10X(data.dir = "X:/Sequencing_data/scRNA_seq_JM_8_14-2024/scRNA_11363-JM/10x_analysis_11363-JM/Sample_11363-JM-2/filtered_feature_bc_matrix/")
+# vGAT_ZT12_2 <- CreateSeuratObject(counts, project="vGAT_ZT12_2")
+# 
+# counts <- Read10X(data.dir = "X:/Sequencing_data/scRNA_seq_JM_8_14-2024/scRNA_11373-JM/10x_analysis_11373-JM/Sample_11373-JM-1/filtered_feature_bc_matrix/")
+# vGAT_ZT0SD_1 <- CreateSeuratObject(counts, project="vGAT_ZT0SD_1")
+# 
+# counts <- Read10X(data.dir = "X:/Sequencing_data/scRNA_seq_JM_8_14-2024/scRNA_11373-JM/10x_analysis_11373-JM/Sample_11373-JM-2/filtered_feature_bc_matrix/")
+# vGAT_ZT0SD_2 <- CreateSeuratObject(counts, project="vGAT_ZT0SD_2")
 
 counts <- Read10X(data.dir = "X:/Sequencing_data/scRNA_seq_JM_8_14-2024/scRNA_11392-JM/10x_analysis_11392-JM/Sample_11392-JM-1/filtered_feature_bc_matrix/")
-DBD_85C10_VT_AD_ZT0_1 <- CreateSeuratObject(counts, project="DBD_85C10_VT_AD_ZT0_1")
+DBD.85C10.VT.AD_ZT0 <- CreateSeuratObject(counts, project="DBD.85C10.VT.AD_ZT0")
 
 
 counts <- Read10X(data.dir = "X:/Sequencing_data/scRNA_seq_JM_8_14-2024/scRNA_11399-JM/10x_analysis_11399-JM/Sample_11399-JM-1/filtered_feature_bc_matrix/")
-DBD_85C10_VT_AD_ZT12_1 <- CreateSeuratObject(counts, project="DBD_85C10_VT_AD_ZT12_1")
+DBD.85C10.VT.AD_ZT12 <- CreateSeuratObject(counts, project="DBD.85C10.VT.AD_ZT12")
 
 
 # Merge data set (Not Intgrete) and do quality control (ls() function give you the list of objects)
