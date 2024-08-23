@@ -60,3 +60,5 @@ seurat <- FindClusters(seurat, resolution = 1)
 plot1 <- DimPlot(seurat, reduction = "tsne", label = TRUE)
 plot2 <- DimPlot(seurat, reduction = "umap", label = TRUE)
 plot1 + plot2
+
+
