@@ -1,7 +1,7 @@
 rm(list=ls())
 
 library(Seurat)
-
+library(dplyr)
 
 counts <- Read10X(data.dir = "X:/Sequencing_data/scRNA_seq_JM_8_14-2024/scRNA_11392-JM/10x_analysis_11392-JM/Sample_11392-JM-1/filtered_feature_bc_matrix/")
 DBD.85C10.VT.AD_ZT0 <- CreateSeuratObject(counts, project="DBD.85C10.VT.AD_ZT0")
@@ -166,4 +166,46 @@ DEG_all<-FindAllMarkers(seurat.integrated_join,
                         min.pct = 0.1,
                         only.pos = T # Only up-regulated genes
                         )  
+# Save the DEG results
+write.csv(DEG_all,'X:/Sequencing_data/scRNA_seq_JM_8_14-2024/Data_analysis_Shiju/DEG_scRNASeq_R85C10_all.csv')
+
+# Let’s take a quick glance at the markers.
+# find out number of up-regulated genes in each cluster compared to other clusters
+table(DEG_all$cluster)
+
+# find top 3 genes in each clusters based on log2FC
+
+top3_markers <- as.data.frame(DEG_all %>% group_by(cluster) %>% top_n(n = 3, wt = avg_log2FC))
+top3_markers
+
+MK1<-FeaturePlot(seurat.integrated_join, features = "AstC", min.cutoff = 'q10')
+MK2<-FeaturePlot(seurat.integrated_join, features = "twit", min.cutoff = 'q10')
+MK3<-FeaturePlot(seurat.integrated_join, features = "C15", min.cutoff = 'q10')
+MK4<-FeaturePlot(seurat.integrated_join, features = "CG10226", min.cutoff = 'q10')
+library(gridExtra)
+grid.arrange(MK1,MK2,MK3,MK4, ncol=2)
+
+# Perform DE analysis within the same cell type across conditions ************************************************
+
+# 1. create a column in the meta.data slot to hold both the cell type and ZT information
+
+seurat.integrated_join@meta.data$cell_condition <- paste(seurat.integrated_join@meta.data$seurat_clusters, seurat.integrated_join@meta.data$orig.ident, sep = "_")
+View(seurat.integrated_join@meta.data)
+Idents(seurat.integrated_join)<-'cell_condition'
+
+# There are 22 clusters 0-21
+DEG_ZT0vsZT12_all<-data.frame()
+for (i in 0:21 ) {
+  cluster_number<-i
+  DEG_ZT0vsZT12<- FindMarkers(seurat.integrated_join, ident.1 = paste(cluster_number,"DBD.85C10.VT.AD_ZT0", sep ="_"), 
+                              ident.2 = paste(cluster_number,"DBD.85C10.VT.AD_ZT12", sep ="_"), verbose = FALSE)
+  DEG_ZT0vsZT12$cluster<-cluster_number
+  
+  DEG_ZT0vsZT12_all<-rbind(DEG_ZT0vsZT12_all,DEG_ZT0vsZT12[which(DEG_ZT0vsZT12$p_val_adj<0.1),])
+}
+
+
+write.csv(DEG_ZT0vsZT12_all,'X:/Sequencing_data/scRNA_seq_JM_8_14-2024/Data_analysis_Shiju/DEG_ZT0vsZT12_all.csv')
+
+# ********************************************************************************************************************
 
