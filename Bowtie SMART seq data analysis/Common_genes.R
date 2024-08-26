@@ -27,3 +27,6 @@ venn.diagram(
   output=TRUE,
   fill = c("green", "red","blue","black"),
 )
+
+
+MB247_R5_R85_VGAT <- Reduce(intersect, list(MB247_up,R5_up,R85_up,vGAT_up))
