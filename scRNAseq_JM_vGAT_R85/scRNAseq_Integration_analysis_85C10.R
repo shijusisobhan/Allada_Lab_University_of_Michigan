@@ -185,7 +185,7 @@ MK4<-FeaturePlot(seurat.integrated_join, features = "CG10226", min.cutoff = 'q10
 library(gridExtra)
 grid.arrange(MK1,MK2,MK3,MK4, ncol=2)
 
-# Perform DE analysis within the same cell type across conditions ************************************************
+# Perform DE analysis within the same cell type across conditions (ZT0 vs ZT12) ************************************************
 
 # 1. create a column in the meta.data slot to hold both the cell type and ZT information
 
