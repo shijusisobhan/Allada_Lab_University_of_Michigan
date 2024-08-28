@@ -1,3 +1,6 @@
+
+# This is the analysis in vGAT exp without SD samples
+
 rm(list=ls())
 
 library(Seurat)
@@ -235,8 +238,120 @@ write.csv(DEG_ZT0vsZT12_all,'X:/Sequencing_data/scRNA_seq_JM_8_14-2024/Data_anal
 
 
   # pseudobulking steps
-# sum together gene counts of all the cells from the same sample for each cellstype
-# This results in one gene expression profile per sample and cell type
+# sum together gene counts of all the cells from the same sample for each cells type (cluster)
+# This results in one gene expression profile per sample and cell type (cluster)
 # perform DE analysis using DESeq2 on the sample level. 
 # This treats the samples, rather than the individual cells, as independent observations.
+
+# Pseudo bulk analysis is usually performed before Integrating the the data
+
+View(merged_seurat_filtered@meta.data)
+
+pseudo_bulk_obj<-AggregateExpression(merged_seurat_filtered,assays = "RNA", 
+                                     return.seurat = F, group.by = c("seurat_clusters","orig.ident"),
+                                     slot='counts')
+
+
+
+
+# Now view the aggregated count matrix 
+
+Pseudo_bulk_count_matrix <- as.matrix(pseudo_bulk_obj$RNA)
+
+
+Pseudo_bulk_count_matrix[1:5,1:5] 
+# within cell cluster-0 (g0), sample ZT0 (DBD.85C10.VT.AD-ZT0) 
+# has 135 counts associated with gene TyrR.
+
+# Now rows- genes, cloumn- samples
+# we need to split the data according to cluster (cell type) (for DEG analysis)
+# To do that first transpose the matrix such that, rows-samples, columns- genes
+
+Pseudo_bulk_count_matrix_t<-as.data.frame(t(Pseudo_bulk_count_matrix))
+
+cluster_name <- sub("_.*", "", rownames(Pseudo_bulk_count_matrix_t)) #Replaces only the first occurrence
+print(cluster_name) # 38 clusters before integration
+
+# split according to cluster name
+Pseudobulk_split<-split.data.frame(Pseudo_bulk_count_matrix_t,
+                                   f=factor(cluster_name))
+
+Pseudobulk_split$g0[1:2,1:5]
+
+# Now we have to do two more steps
+# 1. Exclude cluster name from rows (only need sample name (for bulk rna seq))
+# 2. transpose back the count matrix (rows-genes, column-samples)
+
+Pseudobulk_split_modified<-lapply(Pseudobulk_split, function(x){
+  rownames(x) <- sub('.*_(.*)', '\\1', rownames(x))
+  t(x)
+  
+})
+
+Pseudobulk_split_modified$g0[1:2, 1:2]
+
+# ***************** Now prepare data for DEseq2 analysis ***************************
+
+# Start with data in cluster 0
+# 1. get the count matrix 
+# 2. Create the sample condition table (metadata)
+# 3. Do the DEseq analysis
+# 4. Extract significant genes
+# 5. Repeat it for all the cluster
+
+# In order to do step #5, we can opt lapply (since all the cluster data are in list)
+
+library(DESeq2)
+
+PseudoBulk_Results<-lapply(Pseudobulk_split_modified, function(x){
+  
+  
+ # counts_g0<-Pseudobulk_split_modified$g0
+  
+  counts_g0<-x
+  
+  # create a sample-condition table
+  SC_Data<-data.frame(samples=colnames(counts_g0))
+  SC_Data$condition<-ifelse(grepl('ZT0', SC_Data$samples), '_ZT0','ZT12')
+  # convert sample-condition data to appropriate format
+  rownames(SC_Data)<-SC_Data$samples
+  SC_Data<-SC_Data[-1]
+  
+  SC_Data$condition <- factor(SC_Data$condition, 
+                              levels=c("_ZT0","ZT12"))
+  
+  # create DESeq2 object
+  
+  DESeq.obj<-DESeqDataSetFromMatrix(countData=counts_g0, 
+                                    colData=SC_Data, design= ~condition)
+  
+  # Filtering - Exclude counts <1 from the count matrix
+  Index_fitered<-rowSums(counts(DESeq.obj)) >=1
+  DESeq.obj<-DESeq.obj[Index_fitered,]
+  
+  # run DESeq2
+  DESeq.obj<-DESeq(DESeq.obj)
+  DESeq.Results <- results(DESeq.obj, contrast=c('condition','_ZT0', 'ZT12'))
+  
+  DESeq.Results<-as.data.frame(DESeq.Results)
+  # DESeq.Results<-DESeq.Results[which(DESeq.Results$padj<0.05 & abs(DESeq.Results$log2FoldChange)>0.6),c('log2FoldChange', 'pvalue', 'padj')]
+  
+  DESeq.Results<-DESeq.Results[which(DESeq.Results$padj<0.1),c('log2FoldChange', 'pvalue', 'padj')]
+  
+  
+})
+
+# Convert list into data frame with cluster column
+library(dplyr)
+
+
+# Combine all data frames into a single data frame and add the cluster column
+PseudoBulk_Results_df <- bind_rows(lapply(names(PseudoBulk_Results), function(x) {
+  PseudoBulk_Results[[x]] %>% mutate(cluster =gsub("g","",x)) %>%
+    mutate(Gene=rownames(PseudoBulk_Results[[x]]))
+}))
+
+
+write.csv(PseudoBulk_Results_df,'X:/Sequencing_data/scRNA_seq_JM_8_14-2024/Data_analysis_Shiju/DEG_Between_condition_vGAT_ZT0vsZT12_PseudoBulk.csv')
+
 

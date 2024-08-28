@@ -38,7 +38,7 @@ merged_seurat_filtered <- NormalizeData(merged_seurat_filtered)
 merged_seurat_filtered  <- FindVariableFeatures(merged_seurat_filtered , nfeatures = 3000)
 top_features <- head(VariableFeatures(merged_seurat_filtered ), 10)
 plot1 <- VariableFeaturePlot(merged_seurat_filtered )
-LabelPoints(plot = plot1, points = top_features, repel = TRUE)
+# LabelPoints(plot = plot1, points = top_features, repel = TRUE)
 
 
 # scale data
@@ -167,7 +167,7 @@ DEG_all<-FindAllMarkers(seurat.integrated_join,
                         only.pos = T # Only up-regulated genes
                         )  
 # Save the DEG results
-write.csv(DEG_all,'X:/Sequencing_data/scRNA_seq_JM_8_14-2024/Data_analysis_Shiju/DEG_scRNASeq_R85C10_all.csv')
+write.csv(DEG_all,'X:/Sequencing_data/scRNA_seq_JM_8_14-2024/Data_analysis_Shiju/DEG_Between_cluster_85C10_all.csv')
 
 # Let’s take a quick glance at the markers.
 # find out number of up-regulated genes in each cluster compared to other clusters
@@ -181,9 +181,9 @@ top3_markers
 MK1<-FeaturePlot(seurat.integrated_join, features = "AstC", min.cutoff = 'q10')
 MK2<-FeaturePlot(seurat.integrated_join, features = "twit", min.cutoff = 'q10')
 MK3<-FeaturePlot(seurat.integrated_join, features = "C15", min.cutoff = 'q10')
-MK4<-FeaturePlot(seurat.integrated_join, features = "CG10226", min.cutoff = 'q10')
+MK4<-FeaturePlot(seurat.integrated_join, features = "EGFP", min.cutoff = 'q10')
 library(gridExtra)
-grid.arrange(MK1,MK2,MK3,MK4, ncol=2)
+grid.arrange(MK4,MK1,MK2,MK3, ncol=2)
 
 # Perform DE analysis within the same cell type across conditions (ZT0 vs ZT12) ************************************************
 
@@ -200,12 +200,81 @@ for (i in 0:21 ) {
   DEG_ZT0vsZT12<- FindMarkers(seurat.integrated_join, ident.1 = paste(cluster_number,"DBD.85C10.VT.AD_ZT0", sep ="_"), 
                               ident.2 = paste(cluster_number,"DBD.85C10.VT.AD_ZT12", sep ="_"), verbose = FALSE)
   DEG_ZT0vsZT12$cluster<-cluster_number
+  DEG_ZT0vsZT12$Genes<-rownames(DEG_ZT0vsZT12)
   
   DEG_ZT0vsZT12_all<-rbind(DEG_ZT0vsZT12_all,DEG_ZT0vsZT12[which(DEG_ZT0vsZT12$p_val_adj<0.1),])
 }
 
 
-write.csv(DEG_ZT0vsZT12_all,'X:/Sequencing_data/scRNA_seq_JM_8_14-2024/Data_analysis_Shiju/DEG_ZT0vsZT12_all.csv')
+write.csv(DEG_ZT0vsZT12_all,'X:/Sequencing_data/scRNA_seq_JM_8_14-2024/Data_analysis_Shiju/DEG_between_condition_85C10_ZT0vsZT12.csv')
 
 # ********************************************************************************************************************
+
+# *****************pseudobulk analysis ********************************
+
+# Above tests treat each cell as an independent replicate and ignore 
+# inherent correlations between cells originating from the same sample.
+# So, large number of false positive 
+
+
+# pseudobulking steps
+# sum together gene counts of all the cells from the same sample for each cells type (cluster)
+# This results in one gene expression profile per sample and cell type (cluster)
+# perform DE analysis using DESeq2 on the sample level. 
+# This treats the samples, rather than the individual cells, as independent observations.
+
+# Pseudo bulk analysis is usually performed before Integrating the the data
+
+View(merged_seurat_filtered@meta.data)
+
+# aggregate the counts in a samples (orig.ident) with similar cell-cluster (seurat_clusters)
+
+pseudo_bulk_obj<-AggregateExpression(merged_seurat_filtered,assays = "RNA", 
+                                     return.seurat = F, group.by = c("seurat_clusters","orig.ident"),
+                                     slot='counts')
+
+
+# Now view the aggregated count matrix 
+
+Pseudo_bulk_count_matrix <- as.matrix(pseudo_bulk_obj$RNA)
+Pseudo_bulk_count_matrix[1:5,1:5] 
+# within cell cluster-0 (g0), sample ZT0 (DBD.85C10.VT.AD-ZT0) 
+# has 135 counts associated with gene TyrR.
+
+# Now rows- genes, cloumn- samples
+# we need to split the data according to cluster (cell type) (for DEG analysis)
+# To do that first transpose the matrix such that, rows-samples, columns- genes
+
+Pseudo_bulk_count_matrix_t<-as.data.frame(t(Pseudo_bulk_count_matrix))
+
+cluster_name <- sub("_.*", "", rownames(Pseudo_bulk_count_matrix_t)) #Replaces only the first occurrence
+print(cluster_name) # 17 clusters before integration
+
+# split according to cluster name
+Pseudobulk_split<-split.data.frame(Pseudo_bulk_count_matrix_t,
+                                   f=factor(cluster_name))
+
+Pseudobulk_split$g0[1:2,1:5]
+
+# Now we have to do two more steps
+# 1. Exclude cluster name from rows (only need sample name (for bulk rna seq))
+# 2. transpose back the count matrix (rows-genes, column-samples)
+
+Pseudobulk_split_modified<-lapply(Pseudobulk_split, function(x){
+  rownames(x) <- sub('.*_(.*)', '\\1', rownames(x))
+  t(x)
+  
+})
+
+Pseudobulk_split_modified$g0[1:2, 1:2]
+
+# Now prepare data for DEseq2 analysis
+# Start with data in cluster 0
+# 1. get the count matrix 
+# 2. Create the sample condition table (metadata)
+
+counts_g0<-Pseudobulk_split_modified$g0
+
+# DEseq2 don't work here because there is only two samples.
+
 
