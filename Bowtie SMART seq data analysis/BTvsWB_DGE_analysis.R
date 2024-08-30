@@ -7,6 +7,7 @@ library(ggplot2)
 library(Matrix)
 library(data.table)
 
+
 # Read the count matrix for bowtie nuerons (ZT0) single cell ena seq data
 sparse_matrix <- readMM("X:/Sequencing_data/Clark_seq_data_6-12-2024/01.RawData/BT_all/KB_BT_all/counts_unfiltered/cells_x_genes.mtx")
 sparse_matrix<-t(sparse_matrix)
