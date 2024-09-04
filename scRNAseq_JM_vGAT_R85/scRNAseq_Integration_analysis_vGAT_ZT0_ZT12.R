@@ -191,6 +191,16 @@ grid.arrange(MK1,MK2,MK3,MK4, ncol=2)
 
 FeaturePlot(seurat.integrated_join, features = "EGFP", min.cutoff = 'q10', label = T)
 
+
+MK1<-FeaturePlot(seurat.integrated_join, features = "Pdf", min.cutoff = 'q10')
+MK2<-FeaturePlot(seurat.integrated_join, features = "per", min.cutoff = 'q10')
+MK3<-FeaturePlot(seurat.integrated_join, features = "Clk", min.cutoff = 'q10')
+MK4<-FeaturePlot(seurat.integrated_join, features = "tim", min.cutoff = 'q10')
+MK5<-FeaturePlot(seurat.integrated_join, features = "vri", min.cutoff = 'q10')
+MK6<-FeaturePlot(seurat.integrated_join, features = "AstC", min.cutoff = 'q10')
+library(gridExtra)
+grid.arrange(MK2,MK4,MK3,MK5,MK1,MK6, ncol=3)
+
 # Perform DE analysis within the same cell type across conditions ************************************************
 
 # 1. create a column in the meta.data slot to hold both the cell type and ZT information
