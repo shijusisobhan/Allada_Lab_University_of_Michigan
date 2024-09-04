@@ -71,4 +71,4 @@ plot_pca(so, color_by = 'Batch', text_labels = F, units = "tpm")
 
 plot_pca(so, color_by = 'condition', text_labels = F, units = "tpm")
 
-models(so)
+
