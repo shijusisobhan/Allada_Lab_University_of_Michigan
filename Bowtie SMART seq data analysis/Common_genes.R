@@ -30,3 +30,29 @@ venn.diagram(
 
 
 MB247_R5_R85_VGAT <- Reduce(intersect, list(MB247_up,R5_up,R85_up,vGAT_up))
+
+
+Data_merge<-as.data.frame(c(MB247_up,R5_up,R85_up,vGAT_up))
+
+Data_merge <- na.omit(Data_merge)
+Data_common<-unique(Data_merge)
+colnames(Data_common)<-'ext_genes'
+
+Data_common$MB247<-0
+Data_common$MB247[Data_common$ext_genes %in% MB247_up]<-1
+
+Data_common$R5<-0
+Data_common$R5[Data_common$ext_genes %in% R5_up]<-1
+
+Data_common$R85<-0
+Data_common$R85[Data_common$ext_genes %in% R85_up]<-1
+
+Data_common$vGAT<-0
+Data_common$vGAT[Data_common$ext_genes %in% vGAT_up]<-1
+
+
+Data_common$Overlap.Number<-rowSums(Data_common[,2:5])
+
+Data_common<-Data_common[order(Data_common$Overlap.Number, decreasing = TRUE), ]
+
+write.csv(Data_common, 'common_up_genes_in_DGE_BTvsMB247_R85_R5_vGAT.csv')
