@@ -147,4 +147,5 @@ DGE_all<-merge(DGE_table, p_val_reduce, by.x=1 , by.y="target_id") # megrge with
 
 DGE_all<-na.omit(DGE_all)
 
+
 write.csv(DGE_all, 'DEG_10969-HY_ZT0vsSD.csv')
