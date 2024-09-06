@@ -26,9 +26,9 @@ VlnPlot(merged_seurat, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"),
 # 2. fewer than 6000 or more than 75000 total UMI
 # 3. mt percentage >5%
 
-merged_seurat_filtered <- subset(merged_seurat, subset = nFeature_RNA > 1000 & nFeature_RNA < 6000 & 
-                                   nCount_RNA > 6000 & nCount_RNA < 75000 &
-                                   percent.mt < 5)
+# merged_seurat_filtered <- subset(merged_seurat, subset = nFeature_RNA > 1000 & nFeature_RNA < 6000 & 
+#                                    nCount_RNA > 6000 & nCount_RNA < 75000 &
+#                                    percent.mt < 5)
 
 
 # Normalization

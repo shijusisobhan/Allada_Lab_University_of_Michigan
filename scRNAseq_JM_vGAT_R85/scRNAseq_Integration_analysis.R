@@ -3,7 +3,7 @@ rm(list=ls())
 library(Seurat)
 
 # # Create a Seurat object
-# counts <- Read10X(data.dir = "X:/Sequencing_data/scRNA_seq_JM_8_14-2024/scRNA_11358-JM/10x_analysis_11358-JM/Sample_11358-JM-1/filtered_feature_bc_matrix/")
+counts <- Read10X(data.dir = "X:/Sequencing_data/scRNA_seq_JM_8_14-2024/scRNA_11358-JM/10x_analysis_11358-JM/Sample_11358-JM-1/filtered_feature_bc_matrix/")
 # vGAT_ZT0_1 <- CreateSeuratObject(counts, project="vGAT_ZT0_1")
 # 
 # counts <- Read10X(data.dir = "X:/Sequencing_data/scRNA_seq_JM_8_14-2024/scRNA_11358-JM/10x_analysis_11358-JM/Sample_11358-JM-2/filtered_feature_bc_matrix/")
