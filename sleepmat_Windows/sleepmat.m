@@ -735,10 +735,15 @@ periodogram_ploting_data_2=[];
 
 Run_number1=TXT1(:,1) ;
 
+
+%% ******************************************************************************************
+                     %Start of Each genotype analysis starts%
+%% ******************************************************************************************
+
+
 for i_geno=1:length(geno_type1)
     
 
-    
 Run_number=Run_number1{i_geno} 
 
 Monitor=cell2mat(TXT1(:,2));
