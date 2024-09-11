@@ -15,18 +15,46 @@ package.check <- lapply(
 )
 
 
-
 file_path<-file.choose()
 mainDir <- dirname(file_path)
-subDir<-'Combined_Run_files'
 
 
+read_with_default <- function(prompt_text, default_value) {
+  input <- readline(paste0(prompt_text, " [", default_value, "]: "))
+  if (input == "") {
+    return(default_value)
+  } else {
+    return(input)
+  }
+}
+
+# Usage example
+GT_col <- read_with_default("Enter the number of columns to select in the genotype specification file", "6")
+
+GT_col<-as.numeric(GT_col)
+
+
+
+subDir<-readline(prompt = "Enter a folder name to save the results: "); 
 dir.create(file.path(mainDir, subDir))
 New_file_location<-file.path(mainDir, subDir)
 
+
+file_neme<-readline(prompt = "Enter a file name to save the combined geneotype: "); 
+file_neme_to_save<-paste0(file_neme,'.xlsx')
+
+#****************************************************************************************
+
+
+
+
 data <- read_excel(file_path)
 
-new_column_names <- c("Run_number", "Monitor", "GT", "start_ch", "end_ch", "Analysis_date", "Triage date", "Control_GT")
+new_column_names <- c("Run_number", "Monitor", "GT", "start_ch", "end_ch", "Analysis_date", "Triage date", "Control_GT", "Environment_monitor")
+
+# new_column_names <- c("Run_number", "Monitor", "GT", "start_ch", "end_ch", "Analysis_date")
+
+
 
 dataframes <- list()
 
@@ -60,9 +88,9 @@ rename_files <- function(run_number, folder_location) {
     if (file_extension == "xlsx" || file_extension == "xls") {
       df <- read_excel(file)  # Read file and exclude the header
       # Select the first six columns
-      df_selected <- df %>% select(1:8)
+      df_selected <- df %>% select(1:GT_col)
       # Rename the columns
-      colnames(df_selected) <- new_column_names
+      colnames(df_selected) <- new_column_names[1:GT_col]
       
       df_selected$Monitor<- as.numeric(paste0(run_number,df_selected$Monitor))
       
@@ -76,12 +104,10 @@ rename_files <- function(run_number, folder_location) {
 
 
 
-
-
 # Iterate over each row in the data
 for (i in 1:nrow(data)) {
-  run_number <- data[[1]][i]  # Assuming the first column is "A"
-  folder_location <- data[[2]][i]  # Assuming the second column is "B"
+  run_number <- data[[1]][i]  # Assuming the first column is run_number
+  folder_location <- data[[2]][i]  # Assuming the second column is folder location
   
   # Rename, copy, and merge files in the folder
   df_selected <- rename_files(run_number, folder_location)
@@ -89,17 +115,31 @@ for (i in 1:nrow(data)) {
   # Append the dataframe to the list
   dataframes[[length(dataframes) + 1]] <- df_selected
   
-  # Combine all dataframes by row
-  combined_df <- bind_rows(dataframes)
-  
-  #combined_df$Monitor <- as.numeric(paste0(combined_df$Run_number, combined_df$Monitor))
-  xl_output<-file.path(New_file_location, "combined_Genotype.xlsx")
-  # Save the combined dataframe to a new Excel file
-  write.xlsx(combined_df, xl_output, rowNames = FALSE)
-  
 }
 
-print("Files integration has been sucessfully completed and rsults are in the folder combined_Run_files")
+
+dataframes <- lapply(dataframes, function(df) {
+  df$Run_number <- as.character(df$Run_number)
+  return(df)
+})
+
+
+# Combine all dataframes by row
+combined_df <- bind_rows(dataframes)
+
+
+
+
+
+
+
+xl_output<-file.path(New_file_location, file_neme_to_save)
+# Save the combined dataframe to a new Excel file
+write.xlsx(combined_df, xl_output, rowNames = FALSE)
+
+
+
+print("Files integration has been sucessfully completed")
 
 
 
