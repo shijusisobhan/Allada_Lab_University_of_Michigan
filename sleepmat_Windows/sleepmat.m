@@ -442,7 +442,7 @@ end
 function Start_Callback(hObject, eventdata, handles)
 
 
-try
+%try
 
 oldmsgs = cellstr(get(handles.M_box,'String'));
 
@@ -569,6 +569,12 @@ end
 try
 ref_genotype=TXT1(:,8);
 ref_genotype=ref_genotype(~cellfun('isempty',ref_genotype));
+end
+
+
+try
+Environment_data=TXT1(:,9);
+%ref_genotype=ref_genotype(~cellfun('isempty',ref_genotype));
 end
 
  
@@ -732,6 +738,7 @@ R_all_ed_TW=[];
 Result_all_ed_TW=[];
 
 periodogram_ploting_data_2=[];
+Environment_Cell=[];
 
 Run_number1=TXT1(:,1) ;
 
@@ -771,10 +778,69 @@ X_fly_Raw=importdata(Monitor_file);
 
 
 
-%% Modification start for avoiding plug
+
+    %% **************************** Check whether Environment monitor files are present and stores it in a cell **********************************
+
+  
+    try
+    if ~isnan(Environment_data{i_geno})
+        % Store the value from column 2 and column 5 in the same row
+        Environment_Cell = [Environment_Cell; {Run_number, Environment_data{i_geno}}];
+    end
+    end
+    
+%***********************************************************************************************************************************
+
+
+%% ****************   Check for data Missing  %%%%%%*******************************************************************
+
+ %path = handles.path;
+ folder = mkdir([handles.path,Project_name]);
+path_1  = [handles.path,Project_name] ;
+save_location_Missing_error=[path_1,filesep, strcat('Monitor', num2str(Monitor_number), '_Missing_times.xls')] ;
+
+
 
 X_plug_date=X_fly_Raw.textdata(:,2);% data start from plug in time
 X_plug_time=X_fly_Raw.textdata(:,3);
+
+
+% Convert Date and Time to datetime format
+try
+datetime_combined = datetime(X_plug_date, 'InputFormat', 'dd MMM yy') + timeofday(datetime(X_plug_time));
+catch
+    try
+    datetime_combined = datetime(X_plug_date) + timeofday(datetime(X_plug_time));
+    catch
+disp('ERROR! Date and time format is not standard, check Monitor file')
+     % set(handles.M_box,'String',[oldmsgs;{'ERROR! Date and time format is not standard, check Monitor file'}] );drawnow
+      % return
+    end
+end
+
+
+% Create a complete timeline with 1-minute intervals
+start_time = datetime_combined(1);
+end_time = datetime_combined(end);
+complete_timeline = (start_time:minutes(1):end_time)';
+
+% Find missing times
+missing_times = setdiff(complete_timeline, datetime_combined);
+
+if isempty(missing_times)
+    fprintf('No missing values found \n')
+else
+     writematrix(missing_times, save_location_Missing_error)
+    % writematrix(missing_times, 'Missing_times.xls')
+    disp('ERROR! Missing data found')
+      set(handles.M_box,'String',[oldmsgs;{'ERROR! Missing data found'}] );drawnow
+       return
+end
+
+% Display the missing times
+%disp('Missing times:');
+%disp(missing_times);
+
 
 %% ***********************************************************************************************
 
@@ -3427,12 +3493,13 @@ end
 disp('*****************************************************')
 
 end
-  
+
+
+
 
 %% Saving and closing actogram
 try
-    
-    
+
 Figures = findobj( 'Type', 'Figure' , '-not' , 'Tag' , get( handles.output , 'Tag' ) );
 NFigures = length( Figures );
 myfolder = 'Actogram' ;   % new folder name 
@@ -3442,7 +3509,7 @@ path  = [path,Project_name,filesep,myfolder] ;
 
 
      for k = 1:NFigures    
-         
+
        % FigHandle=Figures(k);
         FigHandle=figure(k);
         FigName   = get(FigHandle, 'Name');
@@ -3452,27 +3519,79 @@ path  = [path,Project_name,filesep,myfolder] ;
         catch
             disp("Error!! Please check genotype name. Don't use backslash '\' or '>' other special characters for genotype naming if you need figures")
                             set(handles.M_box,'String',[oldmsgs;{"Error!! Please check genotype name.  Don't use backslash '\' or '>' for genotype naming if you need figures"}] );drawnow
-                            
+
                             return
         end
-         
+
      end
- 
-     
-     
+
+
+
  for nFigures = 1 : NFigures
   close( Figures( nFigures ) );
  end 
 
- 
+
 end
-%% ****************************************************************
+%% *********************************** End of actogram**********************************************
 
 
 
+%% ************************************************************************************* %%
+
+                   %% Environment Monitor Chart ploting Begins%%
+
+%% ************************************************************************************* %% 
 
 
-%%
+try
+
+Figures = findobj( 'Type', 'Figure' , '-not' , 'Tag' , get( handles.output , 'Tag' ) );
+myfolder = 'Environment_condition_plot' ;   % new folder name 
+folder = mkdir([handles.path,Project_name,filesep,myfolder]);% create the new folder
+path_Environment  = [handles.path,Project_name,filesep,myfolder] ; % set this as path
+
+
+for i_EV=1:length(Environment_Cell)
+
+    Run_number= Environment_Cell{i_EV,1};
+    Environment_file= Environment_Cell{i_EV,2};
+
+Environment_monitor_name=['Monitor' num2str(Environment_file) '.txt'];
+EV_path=strcat(handles.path, Environment_monitor_name);
+T_Environment=readtable(EV_path);
+T_Environment_cleaned=table2array(T_Environment(:, end-31:end));
+
+
+FigName   = ['Environment_chart_',Run_number];
+figure('NumberTitle', 'off', 'Name',FigName);
+
+
+Time_Environment=linspace(0,length(T_Environment_cleaned)/(60*24),length(T_Environment_cleaned));
+
+title(['Environmental conditions Run-',Run_number])
+yyaxis left
+plot(Time_Environment,T_Environment_cleaned(:,4));
+ylabel('Average light over min (lux)')
+
+yyaxis right
+plot(Time_Environment,T_Environment_cleaned(:,9)/10);
+ylabel('Average temperature over min (degC)')
+xlabel('Days')
+
+
+
+       temp_EV=[path_Environment,filesep,FigName,'.png'];
+       saveas(gca,temp_EV); 
+       close(FigName);
+
+
+end
+
+end 
+
+%% **********************   Environment Monitoring ENDS **************************************************************************
+
 try
 [~,~,X_per_ind]=unique(R_ind_periodo(:,1));
 C_per_ind = accumarray(X_per_ind,1:size(R_ind_periodo,1),[],@(r){R_ind_periodo(r,:)});
@@ -3486,14 +3605,6 @@ Estar_per=cell(1,11);
 Estar_per(:)={'******'};
 
 for i_per_ind=1:nr_per 
-    
-    
- 
-  
-    
-    
-    
-    
     
 err_per_ind=C_per_ind{i_per_ind};
 [~, order_per_ind] = sort(cell2mat(err_per_ind(:, 1)));
@@ -5109,11 +5220,11 @@ end
 disp('Analysis COMPLETED! Results exported to xls file')
 set(handles.M_box,'String',[oldmsgs;{'Analysis COMPLETED!'}] );drawnow
 
-catch
-    disp('Unknown Error! Please check the input(eg: genotype specification file, Monitor file, days...)')
-set(handles.M_box,'String',[oldmsgs;{'Unknown Error! Please check the input(eg: genotype specification file, days...)'}] );drawnow
-return;
-end
+% catch
+%     disp('Unknown Error! Please check the input(eg: genotype specification file, Monitor file, days...)')
+% set(handles.M_box,'String',[oldmsgs;{'Unknown Error! Please check the input(eg: genotype specification file, days...)'}] );drawnow
+% return;
+% end
     
 
 
