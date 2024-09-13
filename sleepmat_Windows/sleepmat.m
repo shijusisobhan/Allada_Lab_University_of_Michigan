@@ -672,7 +672,9 @@ std_error_all=[];
 ed_result_Ndays=[];
 Triage_all=[];
 Periodo_all=[];
+Periodo_all_SC=[];
 Result_all_anti=[];
+Result_all_anti_SC=[];
 screen_data=[];
 screen_data_anticipation=[];
 screen_data_period=[];
@@ -741,6 +743,9 @@ Result_all_ed_TW=[];
 
 periodogram_ploting_data_2=[];
 Environment_Cell=[];
+
+
+
 
 Run_number1=TXT1(:,1) ;
 
@@ -3625,13 +3630,14 @@ per_ind_mean2=nanmean(cell2mat(sortederr_per_ind(:, 6:end)),1);
 Column_headers_period={'Genotype', 'Run number','Monitor number','Channel'};
    
 Periodo_all=[Periodo_all;Column_headers_period Head_periodo;sortederr_per_ind;sortederr_per_ind(1,1) head_mean Title_N num2cell(per_ind_mean2);sortederr_per_ind(1,1) head_std num2cell(per_ind_std2);sortederr_per_ind(1,1) head_SE num2cell(per_ind_SE2);num2cell(End_sp_per);Estar_per;num2cell(End_sp_per)];    
+Periodo_all_SC=[Periodo_all_SC;sortederr_per_ind];
 
 % Screening data for periodogram
 screen_data_period=[screen_data_period;sortederr_per_ind(1,1) num2cell(per_ind_mean2(3:4))];
 
 end
 
-      screen_data_period_T=cell2table(screen_data_period,...
+   screen_data_period_T=cell2table(screen_data_period,...
      "VariableNames", ["GT" "P_S" "Period_P_S"]);
 
 screen_data_period_T_P_S = sortrows(screen_data_period_T, 'P_S');
@@ -3641,6 +3647,64 @@ screen_data_period_headers_New={"Genotype" "P-S" "Period(P-S>0)"};
 screen_data_period=[screen_data_period_headers_New;screen_data_period];
 
 end
+
+
+try
+% ################### P value calculation of periodogram screening begins**************************************************************************
+
+
+Periodo_all_SC=Periodo_all_SC(:,1:9); % If you need P-s>10 and P-S>20 add all
+
+ Periodo_all_SC=cell2table(Periodo_all_SC,...
+      "VariableNames", ["Genotype" "Run" "Monitor" "channel" "Triage" "P" "S" "P_S" "Period_P_S"]);
+
+% Get data for the reference genotype
+ref_data_per = Periodo_all_SC(contains(Periodo_all_SC.Genotype, ref_genotype), :);
+% Extract unique genotypes
+genotypes_per = unique(Periodo_all_SC.Genotype);
+
+
+% Initialize result storage
+results_per = table('Size', [numel(genotypes_per), 3], 'VariableTypes', {'string', 'double', 'double'}, ...
+    'VariableNames', {'Genotype', 'P_S_Pval', 'Period_Pval'});
+
+
+% Loop over each genotype to compare with the reference genotype
+for i = 1:numel(genotypes_per)
+    % Get data for the current genotype
+    current_data_per = Periodo_all_SC(strcmp(Periodo_all_SC.Genotype, genotypes_per{i}), :);
+
+        isPresent = any(ismember(ref_data_per.Genotype, genotypes_per{i}));
+
+if isPresent
+  P_S_Pval = 1;
+  Period_Pval = 1;
+
+else
+    % Perform t-tests
+    [~,P_S_Pval] = ttest2(ref_data_per.P_S, current_data_per.P_S);
+    [~, Period_Pval] = ttest2(ref_data_per.Period_P_S, current_data_per.Period_P_S);
+    
+end
+    % Store results
+    results_per.Genotype(i) = genotypes_per{i};
+    results_per.P_S_Pval(i) = P_S_Pval;
+    results_per.Period_Pval(i) = Period_Pval;
+end
+
+
+    Pval_data_all_per=results_per;
+
+
+% ################### P value calculation of periodogram screening  Ends*************************************************************************
+
+end
+
+
+
+
+
+
 
 
 
@@ -4089,7 +4153,7 @@ end
     Pval_data_all=results;
 
 %**************************************************************************************************************************************************************
-                                                 %%% P value calculation for SD experiments END %%%%%%
+                                                 %%% P value calculation for non SD experiments END %%%%%%
 % *************************************************************************************************************************************************************
 
 end
@@ -4235,7 +4299,7 @@ Title_N=[Title5 ' ' num2str(N_active)];
 
    
    Result_all_anti=[Result_all_anti;Column_headers_anti;sortederr_anti;sortederr_anti(1,1) head_mean Title_N num2cell(anti_mean2);sortederr_anti(1,1) head_std num2cell(anti_std2);sortederr_anti(1,1) head_SE num2cell(anti_SE2);num2cell(End_sp2_anti);Estar2_anti;num2cell(End_sp2_anti)];
-   
+   Result_all_anti_SC=[Result_all_anti_SC;sortederr_anti];
    %% screening data for anticipation
    screen_data_anticipation=[screen_data_anticipation;sortederr_anti(1,1) num2cell(anti_mean2)];
 
@@ -4288,11 +4352,86 @@ screen_data_anticipation_T=cell2table(screen_data_anticipation,...
 
     % Combine anticipation screening data with other screening data
     screen_data=[screen_data, screen_data_anticipation(:,2:5)];
+
+
+end
+
+
+try
+      % Combine periodogram screening data with other screening data
+screen_data=[screen_data, screen_data_period(:,2:3)]; 
+end
+
+
+
+
+% ################## P values of anticipation screening results start    % %*************************************************************
+
+try
+Result_all_anti_SC=cell2table(Result_all_anti_SC,...
+      "VariableNames", ["Genotype" "Run" "Monitor" "channel" "Triage" "MA" "EA" "MAP" "EAP"]);
+
+% Get data for the reference genotype
+ref_data_anti = Result_all_anti_SC(contains(Result_all_anti_SC.Genotype, ref_genotype), :);
+% Extract unique genotypes
+genotypes_anti = unique(Result_all_anti_SC.Genotype);
+
+
+% Initialize result storage
+results_anti = table('Size', [numel(genotypes_anti), 5], 'VariableTypes', {'string', 'double', 'double','double', 'double'}, ...
+    'VariableNames', {'Genotype', 'Morning_anticipation_Pval', 'Evening_anticipation_Pval', 'Morning_anticipation_Phase_Pval', 'Evening_anticipation_Phase_Pval'});
+
+
+% Loop over each genotype to compare with the reference genotype
+for i = 1:numel(genotypes_anti)
+    % Get data for the current genotype
+    current_data_anti = Result_all_anti_SC(strcmp(Result_all_anti_SC.Genotype, genotypes_anti{i}), :);
+
+        isPresent = any(ismember(ref_data_anti.Genotype, genotypes_anti{i}));
+
+if isPresent
+  Morning_anticipation_Pval = 1;
+  Evening_anticipation_Pval = 1;
+  Morning_anticipation_Phase_Pval = 1;
+  Evening_anticipation_Phase_Pval = 1;
+
+else
+    % Perform t-tests
+    [~,Morning_anticipation_Pval] = ttest2(ref_data_anti.MA, current_data_anti.MA);
+    [~, Evening_anticipation_Pval] = ttest2(ref_data_anti.EA, current_data_anti.EA);
+    [~,Morning_anticipation_Phase_Pval] = ttest2(ref_data_anti.MAP, current_data_anti.MAP);
+    [~, Evening_anticipation_Phase_Pval] = ttest2(ref_data_anti.EAP, current_data_anti.EAP);
+    
+end
+    % Store results
+    results_anti.Genotype(i) = genotypes_anti{i};
+    results_anti.Morning_anticipation_Pval(i) = Morning_anticipation_Pval;
+    results_anti.Evening_anticipation_Pval(i) = Evening_anticipation_Pval;
+    results_anti.Morning_anticipation_Phase_Pval(i) = Morning_anticipation_Phase_Pval;
+    results_anti.Evening_anticipation_Phase_Pval(i) = Evening_anticipation_Phase_Pval;
+end
+
+
+    Pval_data_all_anti=results_anti;
+
+    % ################## P values of anticipation screening results Ends % % **************************************************
+
+    % Combine anticipation P val with other P values
+    Pval_data_all=[Pval_data_all, Pval_data_all_anti(:, 2:5)]
+
 end
 
 try
-screen_data=[screen_data, screen_data_period(:,2:3)];
+    % Combine periodogram Pval with other P values
+Pval_data_all=[Pval_data_all, Pval_data_all_per(:, 2:3)];
+
 end
+
+
+
+
+
+
 
 
 %%   **************************************************************************************************************************
