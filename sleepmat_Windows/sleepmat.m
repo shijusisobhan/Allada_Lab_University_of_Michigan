@@ -442,7 +442,7 @@ end
 function Start_Callback(hObject, eventdata, handles)
 
 
-%try
+try
 
 oldmsgs = cellstr(get(handles.M_box,'String'));
 
@@ -4417,7 +4417,7 @@ end
     % ################## P values of anticipation screening results Ends % % **************************************************
 
     % Combine anticipation P val with other P values
-    Pval_data_all=[Pval_data_all, Pval_data_all_anti(:, 2:5)]
+    Pval_data_all=[Pval_data_all, Pval_data_all_anti(:, 2:5)];
 
 end
 
@@ -4428,9 +4428,30 @@ Pval_data_all=[Pval_data_all, Pval_data_all_per(:, 2:3)];
 end
 
 
+%% ############################  Combine screening results and P-value together % *******************************************
 
+try
+% convert P value result to cell and add variable name as one column
+Pval_data_all_cell=table2cell(Pval_data_all);
+Pval_data_all_cell=[Pval_data_all.Properties.VariableNames;Pval_data_all_cell];
 
+% Get the size of the arrays
+[numRows, numCols] = size(Pval_data_all_cell);
 
+% Initialize the resulting cell array with twice the number of columns
+SC_Pval = cell(numRows, 2 * numCols);
+
+% Interleave the columns of A and B
+for col = 1:numCols
+    SC_Pval(:, 2*col-1) = screen_data(:, col);  % Odd columns from screening data
+    SC_Pval(:, 2*col) = Pval_data_all_cell(:, col);    % Even columns from Pvalue
+end
+
+SC_Pval(:,1)=[]; % Remove reduntant genotype column
+
+end
+
+%% ############################  Combine screening results and P-value together Finished % *******************************************
 
 
 
@@ -4449,12 +4470,17 @@ path  = [path,Project_name,filesep,myfolder] ;
 save_location_screening=[path,filesep, strcat(Project_name,'_screening_data.xls')] ;
 
 %writecell(screen_data_all, save_location_screening);
-writecell(screen_data, save_location_screening);
 
 try
-save_location_Pval=[path,filesep, strcat(Project_name,'_Hits_pVal.xls')] ;
-writetable(Pval_data_all, save_location_Pval);
+    writecell(SC_Pval, save_location_screening);
+catch
+writecell(screen_data, save_location_screening);
 end
+
+% try
+% save_location_Pval=[path,filesep, strcat(Project_name,'_Hits_pVal.xls')] ;
+% writetable(Pval_data_all, save_location_Pval);
+% end
 
 
 if strcmp(SD_select2, 'Yes')
@@ -5464,11 +5490,11 @@ end
 disp('Analysis COMPLETED! Results exported to xls file')
 set(handles.M_box,'String',[oldmsgs;{'Analysis COMPLETED!'}] );drawnow
 
-% catch
-%     disp('Unknown Error! Please check the input(eg: genotype specification file, Monitor file, days...)')
-% set(handles.M_box,'String',[oldmsgs;{'Unknown Error! Please check the input(eg: genotype specification file, days...)'}] );drawnow
-% return;
-% end
+catch
+    disp('Unknown Error! Please check the input(eg: genotype specification file, Monitor file, days...)')
+set(handles.M_box,'String',[oldmsgs;{'Unknown Error! Please check the input(eg: genotype specification file, days...)'}] );drawnow
+return;
+end
     
 
 
