@@ -674,6 +674,8 @@ Triage_all=[];
 Periodo_all=[];
 Result_all_anti=[];
 screen_data=[];
+screen_data_anticipation=[];
+screen_data_period=[];
 
 
 Sleep_interval=[];
@@ -788,7 +790,7 @@ X_fly_Raw=importdata(Monitor_file);
         Environment_Cell = [Environment_Cell; {Run_number, Environment_data{i_geno}}];
     end
     end
-    
+
 %***********************************************************************************************************************************
 
 
@@ -3621,10 +3623,22 @@ per_ind_mean2=nanmean(cell2mat(sortederr_per_ind(:, 6:end)),1);
 
 
 Column_headers_period={'Genotype', 'Run number','Monitor number','Channel'};
+   
+Periodo_all=[Periodo_all;Column_headers_period Head_periodo;sortederr_per_ind;sortederr_per_ind(1,1) head_mean Title_N num2cell(per_ind_mean2);sortederr_per_ind(1,1) head_std num2cell(per_ind_std2);sortederr_per_ind(1,1) head_SE num2cell(per_ind_SE2);num2cell(End_sp_per);Estar_per;num2cell(End_sp_per)];    
 
+% Screening data for periodogram
+screen_data_period=[screen_data_period;sortederr_per_ind(1,1) num2cell(per_ind_mean2(3:4))];
 
-   Periodo_all=[Periodo_all;Column_headers_period Head_periodo;sortederr_per_ind;sortederr_per_ind(1,1) head_mean Title_N num2cell(per_ind_mean2);sortederr_per_ind(1,1) head_std num2cell(per_ind_std2);sortederr_per_ind(1,1) head_SE num2cell(per_ind_SE2);num2cell(End_sp_per);Estar_per;num2cell(End_sp_per)];    
 end
+
+      screen_data_period_T=cell2table(screen_data_period,...
+     "VariableNames", ["GT" "P_S" "Period_P_S"]);
+
+screen_data_period_T_P_S = sortrows(screen_data_period_T, 'P_S');
+screen_data_period_T_Period = sortrows(screen_data_period_T, 'Period_P_S');
+
+screen_data_period_headers_New={"Genotype" "P-S" "Period(P-S>0)"};
+screen_data_period=[screen_data_period_headers_New;screen_data_period];
 
 end
 
@@ -3868,22 +3882,22 @@ try
     screen_data_AW = sortrows(screen_data_T, 'AW');
     screen_data_Latency = sortrows(screen_data_T, 'Latency');
 
-    screen_data_headers={"GenoType_Total_sleep" "Total_sleep" "GenoType_BoutNumber" "BoutNumber" "GenoType_BoutLength" "BoutLength" "GenoType_Total_activity" "Total_activity"...
-        "GenoType_Activity/waking min" "Activity/waking min" "GenoType_Latency" "Latency"...
-        "GenoType_Sleep_loss" "Sleep_loss" "GenoType_Percentage_Sleep_loss" "Percentage_Sleep_loss" "GenoType_Sleep_gain" "Sleep_gain" "GenoType_Percentage_Sleep_gain" "Percentage_Sleep_gain" "GenoType_Latency_after_SD" "Latency_after_SD"};
-
-    screen_data_all=[screen_data_headers;
-    screen_data_sleep.GT num2cell(screen_data_sleep.sleep)...
-    screen_data_BN.GT num2cell(screen_data_BN.BN)...
-    screen_data_BL.GT num2cell(screen_data_BL.BL)...
-    screen_data_TA.GT num2cell(screen_data_TA .TA)...
-    screen_data_AW.GT num2cell(screen_data_AW.AW)...
-    screen_data_Latency.GT num2cell(screen_data_Latency.Latency)...
-    screen_data_SL.GT num2cell(screen_data_SL.SL)...
-    screen_data_SLP.GT num2cell(screen_data_SLP.SL_P)...
-    screen_data_SG.GT num2cell(screen_data_SG.SG)...
-    screen_data_SGP.GT num2cell(screen_data_SGP.SG_P)...
-    screen_data_SDL.GT num2cell(screen_data_SDL.SD_Latency)];
+    % screen_data_headers={"GenoType_Total_sleep" "Total_sleep" "GenoType_BoutNumber" "BoutNumber" "GenoType_BoutLength" "BoutLength" "GenoType_Total_activity" "Total_activity"...
+    %     "GenoType_Activity/waking min" "Activity/waking min" "GenoType_Latency" "Latency"...
+    %     "GenoType_Sleep_loss" "Sleep_loss" "GenoType_Percentage_Sleep_loss" "Percentage_Sleep_loss" "GenoType_Sleep_gain" "Sleep_gain" "GenoType_Percentage_Sleep_gain" "Percentage_Sleep_gain" "GenoType_Latency_after_SD" "Latency_after_SD"};
+    % 
+    % screen_data_all=[screen_data_headers;
+    % screen_data_sleep.GT num2cell(screen_data_sleep.sleep)...
+    % screen_data_BN.GT num2cell(screen_data_BN.BN)...
+    % screen_data_BL.GT num2cell(screen_data_BL.BL)...
+    % screen_data_TA.GT num2cell(screen_data_TA .TA)...
+    % screen_data_AW.GT num2cell(screen_data_AW.AW)...
+    % screen_data_Latency.GT num2cell(screen_data_Latency.Latency)...
+    % screen_data_SL.GT num2cell(screen_data_SL.SL)...
+    % screen_data_SLP.GT num2cell(screen_data_SLP.SL_P)...
+    % screen_data_SG.GT num2cell(screen_data_SG.SG)...
+    % screen_data_SGP.GT num2cell(screen_data_SGP.SG_P)...
+    % screen_data_SDL.GT num2cell(screen_data_SDL.SD_Latency)];
 
 
        screen_data_headers_New={"Genotype" "Total_sleep"  "BoutNumber"  "BoutLength"  "Total_activity"...
@@ -3988,16 +4002,16 @@ screen_data_TA = sortrows(screen_data_T, 'TA');
 screen_data_AW = sortrows(screen_data_T, 'AW');
 screen_data_Latency = sortrows(screen_data_T, 'Latency');
 
- screen_data_headers={"GenoType_Total_sleep" "Total_sleep" "GenoType_BoutNumber" "BoutNumber" "GenoType_BoutLength" "BoutLength" "GenoType_Total_activity" "Total_activity"...
-        "GenoType_Activity/waking min" "Activity/waking min" "GenoType_Latency" "Latency"};
-
-screen_data_all=[screen_data_headers;
-    screen_data_sleep.GT num2cell(screen_data_sleep.sleep)...
-    screen_data_BN.GT num2cell(screen_data_BN.BN)...
-    screen_data_BL.GT num2cell(screen_data_BL.BL)...
-    screen_data_TA.GT num2cell(screen_data_TA .TA)...
-    screen_data_AW.GT num2cell(screen_data_AW.AW)...
-    screen_data_Latency.GT num2cell(screen_data_Latency.Latency)];
+%  screen_data_headers={"GenoType_Total_sleep" "Total_sleep" "GenoType_BoutNumber" "BoutNumber" "GenoType_BoutLength" "BoutLength" "GenoType_Total_activity" "Total_activity"...
+%         "GenoType_Activity/waking min" "Activity/waking min" "GenoType_Latency" "Latency"};
+% 
+% screen_data_all=[screen_data_headers;
+%     screen_data_sleep.GT num2cell(screen_data_sleep.sleep)...
+%     screen_data_BN.GT num2cell(screen_data_BN.BN)...
+%     screen_data_BL.GT num2cell(screen_data_BL.BL)...
+%     screen_data_TA.GT num2cell(screen_data_TA .TA)...
+%     screen_data_AW.GT num2cell(screen_data_AW.AW)...
+%     screen_data_Latency.GT num2cell(screen_data_Latency.Latency)];
 
 
        screen_data_headers_New={"Genotype" "Total_sleep"  "BoutNumber"  "BoutLength"  "Total_activity"...
@@ -4079,204 +4093,6 @@ end
 % *************************************************************************************************************************************************************
 
 end
-
-end
-
-
-
-
-
-path = handles.path;
-myfolder = 'Screening_results' ;   % new folder name 
-folder = mkdir([path,Project_name,filesep,myfolder]);
-path  = [path,Project_name,filesep,myfolder] ;
-
-%save_location_analysis_par=fullfile(path, strcat(Project_name,'screening_data.xls.xls'));
-
-save_location_screening=[path,filesep, strcat(Project_name,'_screening_data.xls')] ;
-
-%writecell(screen_data_all, save_location_screening);
-writecell(screen_data, save_location_screening);
-
-try
-save_location_Pval=[path,filesep, strcat(Project_name,'_Hits_pVal.xls')] ;
-writetable(Pval_data_all, save_location_Pval);
-end
-
-
-if strcmp(SD_select2, 'Yes')
-    
-FigName   = 'sleep_Loss';
-figure('NumberTitle', 'off', 'Name',FigName);
-plot(screen_data_SL.SL, '.', 'MarkerSize',20)
-ylabel('sleep Loss (min)');
-% set(gca,'XTick',1:numel(screen_data_SL.GT));
-% set(gca,'XTickLabel',screen_data_SL.GT);
-set(gca,'XTick',[]);
-
-h=gca;
-%h. XTickLabelRotation=90;
-
-         
-         temp1=[path,filesep,FigName,'.png'];
-       saveas(gca,temp1); 
-       close(FigName);
-
-
- 
-    FigName   = 'sleep_Rebound';
-figure('NumberTitle', 'off', 'Name',FigName);
-plot(screen_data_SG.SG, '.', 'MarkerSize',20)
-ylabel('sleep Rebound (min)');
-% set(gca,'XTick',1:numel(screen_data_SG.GT));
-% set(gca,'XTickLabel',screen_data_SG.GT);
-h=gca;
-%h. XTickLabelRotation=90;
-set(gca,'XTick',[]);
-
-         
-         temp1=[path,filesep,FigName,'.png'];
-               try
-        saveas(gca,temp1); 
-        catch
-            disp("Error!! Please check genotype name. Don't use backslash '\' or '>'  for genotype naming if you need figures")
-                            set(handles.M_box,'String',[oldmsgs;{"Error!! Please check genotype name.  Don't use backslash '\' or '>'  for genotype naming if you need figures"}] );drawnow
-                            
-                            return
-        end
-       close(FigName);
-
-end
-
-
-
-FigName   = 'sleep';
-figure('NumberTitle', 'off', 'Name',FigName);
-plot(screen_data_sleep.sleep, '.', 'MarkerSize',20)
-ylabel('sleep/Day (min)');
-% set(gca,'XTick',1:numel(screen_data_sleep.GT));
-% set(gca,'XTickLabel',screen_data_sleep.GT);
-h=gca;
-% h. XTickLabelRotation=90;
-set(gca,'XTick',[]);
-
-         
-         temp1=[path,filesep,FigName,'.png'];
-       saveas(gca,temp1); 
-       close(FigName);
-       
-
-
-
-
-FigName   = 'Bout_number';
-figure('NumberTitle', 'off', 'Name',FigName);
-
-plot(screen_data_BN.BN, '.', 'MarkerSize',20)
-ylabel('Bout number/Day');
-% set(gca,'XTick',1:numel(screen_data_BN.GT));
-% set(gca,'XTickLabel',screen_data_BN.GT);
-h=gca;
-% h. XTickLabelRotation=90;
-set(gca,'XTick',[]);
-
-
-        temp1=[path,filesep,FigName,'.png'];
-                try
-        saveas(gca,temp1); 
-        catch
-            disp("Error!! Please check genotype name. Don't use backslash '\' or '>' for genotype naming if you need figures")
-                            set(handles.M_box,'String',[oldmsgs;{"Error!! Please check genotype name.  Don't use backslash '\' or '>' for genotype naming if you need figures"}] );drawnow
-                            
-                            return
-        end 
-  close(FigName);
-
-
-
- FigName   = 'Bout_Length';
-figure('NumberTitle', 'off', 'Name',FigName);
-
-plot(screen_data_BL.BL, '.', 'MarkerSize',20)
-ylabel('Bout Length / Day');
-% set(gca,'XTick',1:numel(screen_data_BL.GT));
-% set(gca,'XTickLabel',screen_data_BL.GT);
-h=gca;
-% h. XTickLabelRotation=90;
-set(gca,'XTick',[]);
-
-
-        temp1=[path,filesep,FigName,'.png'];
-        try
-        saveas(gca,temp1); 
-        catch
-            disp("Error!! Please check genotype name. Don't use backslash '\' or '>'  for genotype naming if you need figures")
-                            set(handles.M_box,'String',[oldmsgs;{"Error!! Please check genotype name.  Don't use backslash '\' or '>' for genotype naming if you need figures"}] );drawnow
-                            
-                            return
-        end
-  close(FigName); 
-
-
-
- FigName   = 'Total_activity';
-figure('NumberTitle', 'off', 'Name',FigName);
-
-plot(screen_data_TA.TA, '.', 'MarkerSize',20);
-ylabel('Total activity / Day');
-% set(gca,'XTick',1:numel(screen_data_TA.GT));
-% set(gca,'XTickLabel',screen_data_TA.GT);
-h=gca;
-% h. XTickLabelRotation=90;
-set(gca,'XTick',[]);
-
-
-        temp1=[path,filesep,FigName,'.png'];
-                try
-        saveas(gca,temp1); 
-        catch
-            disp("Error!! Please check genotype name. Don't use backslash '\' or '>'  for genotype naming if you need figures")
-                            set(handles.M_box,'String',[oldmsgs;{"Error!! Please check genotype name.  Don't use backslash '\' or '>' for genotype naming if you need figures"}] );drawnow
-                            
-                            return
-        end
-  close(FigName); 
-
-
-FigName   = 'Activity_Waking_min';
-figure('NumberTitle', 'off', 'Name',FigName);
-
-plot(screen_data_TA.TA, '.', 'MarkerSize',20)
-ylabel('activity / Waking min');
-% set(gca,'XTick',1:numel(screen_data_AW.GT));
-% set(gca,'XTickLabel',screen_data_AW.GT);
-h=gca;
-% h. XTickLabelRotation=90;
-set(gca,'XTick',[]);
-
-        temp1=[path,filesep,FigName,'.png'];
-        saveas(gca,temp1); 
-  close(FigName);   
-  
-
-
-FigName   = 'Latency';
-figure('NumberTitle', 'off', 'Name',FigName);
-
-plot(screen_data_Latency.Latency, '.', 'MarkerSize',20)
-ylabel('Latency (min)');
-% set(gca,'XTick',1:numel(screen_data_Latency.GT));
-% set(gca,'XTickLabel',screen_data_Latency.GT);
-h=gca;
-% h. XTickLabelRotation=90;
-set(gca,'XTick',[]);
-
-        temp1=[path,filesep,FigName,'.png'];
-        saveas(gca,temp1); 
-  close(FigName);   
-
-
-
 
 end
 
@@ -4421,7 +4237,7 @@ Title_N=[Title5 ' ' num2str(N_active)];
    Result_all_anti=[Result_all_anti;Column_headers_anti;sortederr_anti;sortederr_anti(1,1) head_mean Title_N num2cell(anti_mean2);sortederr_anti(1,1) head_std num2cell(anti_std2);sortederr_anti(1,1) head_SE num2cell(anti_SE2);num2cell(End_sp2_anti);Estar2_anti;num2cell(End_sp2_anti)];
    
    %% screening data for anticipation
-   %screen_data_anticipation=[sortederr_anti(1,1) num2cell(anti_mean2)];
+   screen_data_anticipation=[screen_data_anticipation;sortederr_anti(1,1) num2cell(anti_mean2)];
 
  
 %% *************************************************************
@@ -4455,9 +4271,298 @@ Eanti_ph_gp_final=[Individual_head_anti Eanti_ph_gp];
    
 end
 
+% screening data for anticipation
+
+screen_data_anticipation_T=cell2table(screen_data_anticipation,...
+     "VariableNames", ["GT" "MA" "EA" "MAP" "EAP"]);
+
+
+    screen_data_anticipation_MA = sortrows(screen_data_anticipation_T, 'MA');
+    screen_data_anticipation_EA = sortrows(screen_data_anticipation_T, 'EA');
+    screen_data_anticipation_MAP = sortrows(screen_data_anticipation_T, 'MAP');
+    screen_data_anticipation_EAP = sortrows(screen_data_anticipation_T, 'EAP');
+
+
+    screen_data_anticipation_headers_New={"Genotype" "Morning_Anticipation" "Evening_Anticipation" "Morning_anticipation_phase" "Evening_anticipation_phase"};
+    screen_data_anticipation=[screen_data_anticipation_headers_New;screen_data_anticipation];
+
+    % Combine anticipation screening data with other screening data
+    screen_data=[screen_data, screen_data_anticipation(:,2:5)];
+end
+
+try
+screen_data=[screen_data, screen_data_period(:,2:3)];
+end
+
+
+%%   **************************************************************************************************************************
+
+%%   #################   saving screening results and creating screen data plot begins  #####################################
+
+
+path = handles.path;
+myfolder = 'Screening_results' ;   % new folder name 
+folder = mkdir([path,Project_name,filesep,myfolder]);
+path  = [path,Project_name,filesep,myfolder] ;
+
+%save_location_analysis_par=fullfile(path, strcat(Project_name,'screening_data.xls.xls'));
+
+save_location_screening=[path,filesep, strcat(Project_name,'_screening_data.xls')] ;
+
+%writecell(screen_data_all, save_location_screening);
+writecell(screen_data, save_location_screening);
+
+try
+save_location_Pval=[path,filesep, strcat(Project_name,'_Hits_pVal.xls')] ;
+writetable(Pval_data_all, save_location_Pval);
+end
+
+
+if strcmp(SD_select2, 'Yes')
+    
+FigName   = 'sleep_Loss';
+figure('NumberTitle', 'off', 'Name',FigName);
+plot(screen_data_SL.SL, '.', 'MarkerSize',20)
+ylabel('sleep Loss (min)');
+% set(gca,'XTick',1:numel(screen_data_SL.GT));
+% set(gca,'XTickLabel',screen_data_SL.GT);
+set(gca,'XTick',[]);
+
+h=gca;
+%h. XTickLabelRotation=90;
+
+         
+         temp1=[path,filesep,FigName,'.png'];
+       saveas(gca,temp1); 
+       close(FigName);
+
+
+ 
+    FigName   = 'sleep_Rebound';
+figure('NumberTitle', 'off', 'Name',FigName);
+plot(screen_data_SG.SG, '.', 'MarkerSize',20)
+ylabel('sleep Rebound (min)');
+% set(gca,'XTick',1:numel(screen_data_SG.GT));
+% set(gca,'XTickLabel',screen_data_SG.GT);
+h=gca;
+%h. XTickLabelRotation=90;
+set(gca,'XTick',[]);
+
+         
+         temp1=[path,filesep,FigName,'.png'];
+               try
+        saveas(gca,temp1); 
+        catch
+            disp("Error!! Please check genotype name. Don't use backslash '\' or '>'  for genotype naming if you need figures")
+                            set(handles.M_box,'String',[oldmsgs;{"Error!! Please check genotype name.  Don't use backslash '\' or '>'  for genotype naming if you need figures"}] );drawnow
+                            
+                            return
+        end
+       close(FigName);
+
+end
+
+
+
+FigName   = 'sleep';
+figure('NumberTitle', 'off', 'Name',FigName);
+plot(screen_data_sleep.sleep, '.', 'MarkerSize',20)
+ylabel('sleep/Day (min)');
+% set(gca,'XTick',1:numel(screen_data_sleep.GT));
+% set(gca,'XTickLabel',screen_data_sleep.GT);
+h=gca;
+% h. XTickLabelRotation=90;
+set(gca,'XTick',[]);
+
+         
+         temp1=[path,filesep,FigName,'.png'];
+       saveas(gca,temp1); 
+       close(FigName);
+       
+
+
+
+
+FigName   = 'Bout_number';
+figure('NumberTitle', 'off', 'Name',FigName);
+
+plot(screen_data_BN.BN, '.', 'MarkerSize',20)
+ylabel('Bout number/Day');
+% set(gca,'XTick',1:numel(screen_data_BN.GT));
+% set(gca,'XTickLabel',screen_data_BN.GT);
+h=gca;
+% h. XTickLabelRotation=90;
+set(gca,'XTick',[]);
+
+
+        temp1=[path,filesep,FigName,'.png'];
+                try
+        saveas(gca,temp1); 
+        catch
+            disp("Error!! Please check genotype name. Don't use backslash '\' or '>' for genotype naming if you need figures")
+                            set(handles.M_box,'String',[oldmsgs;{"Error!! Please check genotype name.  Don't use backslash '\' or '>' for genotype naming if you need figures"}] );drawnow
+                            
+                            return
+        end 
+  close(FigName);
+
+
+
+ FigName   = 'Bout_Length';
+figure('NumberTitle', 'off', 'Name',FigName);
+
+plot(screen_data_BL.BL, '.', 'MarkerSize',20)
+ylabel('Bout Length / Day');
+% set(gca,'XTick',1:numel(screen_data_BL.GT));
+% set(gca,'XTickLabel',screen_data_BL.GT);
+h=gca;
+% h. XTickLabelRotation=90;
+set(gca,'XTick',[]);
+
+
+        temp1=[path,filesep,FigName,'.png'];
+        saveas(gca,temp1);
+  close(FigName); 
+
+
+
+ FigName   = 'Total_activity';
+figure('NumberTitle', 'off', 'Name',FigName);
+
+plot(screen_data_TA.TA, '.', 'MarkerSize',20);
+ylabel('Total activity / Day');
+h=gca;
+set(gca,'XTick',[]);
+
+        temp1=[path,filesep,FigName,'.png'];
+        saveas(gca,temp1); 
+                
+  close(FigName); 
+
+
+FigName   = 'Activity_Waking_min';
+figure('NumberTitle', 'off', 'Name',FigName);
+
+plot(screen_data_TA.TA, '.', 'MarkerSize',20)
+ylabel('activity / Waking min');
+% set(gca,'XTick',1:numel(screen_data_AW.GT));
+% set(gca,'XTickLabel',screen_data_AW.GT);
+h=gca;
+% h. XTickLabelRotation=90;
+set(gca,'XTick',[]);
+
+        temp1=[path,filesep,FigName,'.png'];
+        saveas(gca,temp1); 
+  close(FigName);   
+  
+
+
+FigName   = 'Latency';
+figure('NumberTitle', 'off', 'Name',FigName);
+
+plot(screen_data_Latency.Latency, '.', 'MarkerSize',20)
+ylabel('Latency (min)');
+% set(gca,'XTick',1:numel(screen_data_Latency.GT));
+% set(gca,'XTickLabel',screen_data_Latency.GT);
+h=gca;
+% h. XTickLabelRotation=90;
+set(gca,'XTick',[]);
+
+        temp1=[path,filesep,FigName,'.png'];
+        saveas(gca,temp1); 
+  close(FigName);   
 
 
 end
+
+
+% ***************************** anticipation screening plot Begins ***************************************************************************
+
+try
+
+FigName   = 'Morning_anticipation';
+figure('NumberTitle', 'off', 'Name',FigName);
+plot(screen_data_anticipation_MA.MA, '.', 'MarkerSize',20)
+ylabel('Morning Anticipation');
+h=gca;
+set(gca,'XTick',[]);
+        temp1=[path,filesep,FigName,'.png'];
+        saveas(gca,temp1); 
+  close(FigName);
+
+
+
+  FigName   = 'Evening_anticipation';
+figure('NumberTitle', 'off', 'Name',FigName);
+plot(screen_data_anticipation_EA.EA, '.', 'MarkerSize',20)
+ylabel('Evening Anticipation');
+h=gca;
+set(gca,'XTick',[]);
+        temp1=[path,filesep,FigName,'.png'];
+        saveas(gca,temp1); 
+  close(FigName);
+
+
+FigName   = 'Morning_anticipation phase';
+figure('NumberTitle', 'off', 'Name',FigName);
+plot(screen_data_anticipation_MAP.MAP, '.', 'MarkerSize',20)
+ylabel('Morning Anticipation phase');
+h=gca;
+set(gca,'XTick',[]);
+        temp1=[path,filesep,FigName,'.png'];
+        saveas(gca,temp1); 
+  close(FigName);
+
+
+  FigName   = 'Evening_anticipation_phase';
+figure('NumberTitle', 'off', 'Name',FigName);
+plot(screen_data_anticipation_EAP.EAP, '.', 'MarkerSize',20)
+ylabel('Evening Anticipation phase');
+h=gca;
+set(gca,'XTick',[]);
+        temp1=[path,filesep,FigName,'.png'];
+        saveas(gca,temp1); 
+  close(FigName);
+
+end
+
+  %  Anticipation screening plot ENDS ***************************************************************************************************
+
+
+
+% ***************************** periodogram screening plot Begins ***************************************************************************
+
+try
+FigName   = 'P-S';
+figure('NumberTitle', 'off', 'Name',FigName);
+plot(screen_data_period_T_P_S.P_S, '.', 'MarkerSize',20)
+ylabel('P-S');
+h=gca;
+set(gca,'XTick',[]);
+        temp1=[path,filesep,FigName,'.png'];
+        saveas(gca,temp1); 
+  close(FigName);
+
+
+  FigName   = 'Period_P-S';
+figure('NumberTitle', 'off', 'Name',FigName);
+plot(screen_data_period_T_Period.Period_P_S, '.', 'MarkerSize',20)
+ylabel('Period (P-S>0)');
+h=gca;
+set(gca,'XTick',[]);
+        temp1=[path,filesep,FigName,'.png'];
+        saveas(gca,temp1); 
+  close(FigName);
+
+end
+
+% ***************************** periodogram screening plot Ends ***************************************************************************
+
+%% #################     Screen data plot ENDs   ####################################################################################################################
+
+
+
+
 
 
 
