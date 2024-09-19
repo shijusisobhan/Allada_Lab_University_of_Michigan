@@ -294,6 +294,20 @@ plot1
 
 ```
 
+```{r}
+
+MK1<-FeaturePlot(seurat, features = "Pdf", min.cutoff = 'q10')
+MK2<-FeaturePlot(seurat, features = "per", min.cutoff = 'q10')
+MK3<-FeaturePlot(seurat, features = "Clk", min.cutoff = 'q10')
+MK4<-FeaturePlot(seurat, features = "tim", min.cutoff = 'q10')
+MK5<-FeaturePlot(seurat, features = "vri", min.cutoff = 'q10')
+MK6<-FeaturePlot(seurat, features = "AstC", min.cutoff = 'q10')
+library(gridExtra)
+grid.arrange(MK2,MK4,MK3,MK5,MK1,MK6, ncol=3)
+
+
+```
+
 Get the top most significant genes, and cluster them by their distribution pattern in the 2D plot
 
 ```{r}

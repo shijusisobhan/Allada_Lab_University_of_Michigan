@@ -148,8 +148,8 @@ View(seurat.integrated@meta.data)
 # Running the IntegrateData function creates a new Assay object (by default it is called integrated)
 #The uncorrected values -tore in the original Assay object (called RNA by default).
 # The default assay of the resulted Seurat object is automatically set to integrated
-# he corrected values are no longer very reliable
-#For cluster marker identification and visualization, to use the uncorrected expression values
+# The corrected values are no longer very reliable
+#For cluster marker identification and visualization, use the uncorrected expression values
 
 DefaultAssay(seurat.integrated) <- "RNA"
 
@@ -176,6 +176,17 @@ write.csv(DEG_all,'X:/Sequencing_data/scRNA_seq_JM_8_14-2024/Data_analysis_Shiju
 # Let’s take a quick glance at the markers.
 # find out number of up-regulated genes in each cluster compared to other clusters
 table(DEG_all$cluster)
+
+# Identfy the number fo cells in each clusters
+cluster_counts <- table(Idents(seurat.integrated_join))
+print(cluster_counts)
+
+# Convert to data frame
+cluster_counts_df <- as.data.frame(cluster_counts)
+colnames(cluster_counts_df) <- c("Cluster", "Cell_Count")
+print(cluster_counts_df)
+
+write.csv(cluster_counts_df,'X:/Sequencing_data/scRNA_seq_JM_8_14-2024/Data_analysis_Shiju/cells_in_cluster_vGAT_excludeSD.csv')
 
 # find top 3 genes in each clusters based on log2FC
 
@@ -224,12 +235,14 @@ View(seurat.integrated_join@meta.data)
 Idents(seurat.integrated_join)<-'cell_condition'
 
 
-# There are 41 clusters 0-20
+# There are 46 clusters 0-46 
+#  avg_log2FC Positive values indicate that the gene is more highly expressed in the first group (ident.1)
+
 DEG_ZT0vsZT12_all<-data.frame()
-for (i in 0:40 ) {
+for (i in 0:46 ) {
   cluster_number<-i
-  DEG_ZT0vsZT12<- FindMarkers(seurat.integrated_join, ident.1 = paste(cluster_number,"vGAT_ZT0", sep ="_"), 
-                              ident.2 = paste(cluster_number,"vGAT_ZT12", sep ="_"), verbose = FALSE)
+  DEG_ZT0vsZT12<- FindMarkers(seurat.integrated_join, ident.1 = paste(cluster_number,"vGAT_ZT12", sep ="_"), 
+                              ident.2 = paste(cluster_number,"vGAT_ZT0", sep ="_"), verbose = FALSE)
   DEG_ZT0vsZT12$cluster<-cluster_number
   DEG_ZT0vsZT12$Genes<-rownames(DEG_ZT0vsZT12)
   
@@ -237,7 +250,10 @@ for (i in 0:40 ) {
 }
 
 
-write.csv(DEG_ZT0vsZT12_all,'X:/Sequencing_data/scRNA_seq_JM_8_14-2024/Data_analysis_Shiju/DEG_Between_condition_vGAT_ZT0vsZT12.csv')
+write.csv(DEG_ZT0vsZT12_all,'X:/Sequencing_data/scRNA_seq_JM_8_14-2024/Data_analysis_Shiju/DEG_Between_condition_vGAT_ZT0vsZT12_Exclude_SD.csv')
+
+
+saveRDS(seurat.integrated_join, file = "X:/Sequencing_data/scRNA_seq_JM_8_14-2024/Data_analysis_Shiju/seurat_obj_vGAT_ZT0_ZT12_Integrated.rds")
 
 # ********************************************************************************************************************
 # ************ Perform DE analysis after pseudobulking****************************************

@@ -7,21 +7,23 @@ Monitor_file='18';
 EV_path=['C:\Users\shijusis\OneDrive - Michigan Medicine\Desktop\Re_ Sleep architecture_rebound for paper\GW\M30','\Monitor',Monitor_file,'.txt'];
 
 
-T_Environment=importdata(EV_path);
+X_fly_Raw=importdata(EV_path);
 
-% Convert Date and Time to datetime format
+time_col = datetime(X_fly_Raw.textdata(:,3), 'Format', 'HH:mm:ss');          % Time column (col3)
+time_col.Second=0; % set all the seconds value to zero (Sometimes it was not automatically)
+
+
 try
-datetime_combined = datetime(T_Environment.textdata(:,2), 'InputFormat', 'dd MMM yy') + timeofday(datetime(T_Environment.textdata(:,3)));
+datetime_combined = datetime(X_fly_Raw.textdata(:,2), 'InputFormat', 'dd MMM yy') + timeofday(datetime(time_col));
 catch
     try
-    datetime_combined = datetime(T_Environment.textdata(:,2)) + timeofday(datetime(T_Environment.textdata(:,3)));
+    datetime_combined = datetime(X_fly_Raw.textdata(:,2)) + timeofday(datetime(time_col));
     catch
 disp('ERROR! Date and time format is not standard, check Monitor file')
       set(handles.M_box,'String',[oldmsgs;{'ERROR! Date and time format is not standard, check Monitor file'}] );drawnow
        return
     end
 end
-
 
 % Create a complete timeline with 1-minute intervals
 start_time = datetime_combined(1);
@@ -35,11 +37,21 @@ if isempty(missing_times)
     fprintf('No missing values found')
 else
     writematrix(missing_times, "Missing_times.xls")
-    disp('ERROR! Missing data found')
-      %set(handles.M_box,'String',[oldmsgs;{'ERROR! Missing data found'}] );drawnow
-       return
+
+  [~, idx_in_complete] = ismember(datetime_combined,complete_timeline); % change here
+
+
+  new_data(idx_in_complete,:)=X_fly_Raw.data;
+
+  new_date_col=cellstr(datestr(complete_timeline, 'dd mmm yy'));
+  new_time_col = cellstr(datestr(complete_timeline, 'HH:MM:ss'));
+  new_arbitrary_number= num2cell(zeros(length(complete_timeline),1));
+
+new_textdata = [new_arbitrary_number, new_date_col, new_time_col];
+
+X_fly_Raw.data = new_data;
+X_fly_Raw.textdata = new_textdata;
+
+
 end
 
-% Display the missing times
-disp('Missing times:');
-disp(missing_times);
