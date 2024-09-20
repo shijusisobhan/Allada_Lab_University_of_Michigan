@@ -802,26 +802,32 @@ X_fly_Raw=importdata(Monitor_file);
 %% ****************   Check for data Missing  %%%%%%*******************************************************************
 
  %path = handles.path;
- folder = mkdir([handles.path,Project_name]);
-path_1  = [handles.path,Project_name] ;
-save_location_Missing_error=[path_1,filesep, strcat('Monitor', num2str(Monitor_number), '_Missing_times.xls')] ;
+folder = mkdir([handles.path,Project_name]);% create folder for all results
+%path_1  = [handles.path,Project_name] ;
+Missing_folder='Missing_data';
+folder2=mkdir([handles.path,Project_name,filesep,Missing_folder]);
+path_2=[handles.path,Project_name,filesep,Missing_folder];% create folder for missing data
+save_location_Missing_error=[path_2,filesep, strcat('Monitor', num2str(Monitor_number), '_Missing_times.xls')] ;
 
 
 
-X_plug_date=X_fly_Raw.textdata(:,2);% data start from plug in time
-X_plug_time=X_fly_Raw.textdata(:,3);
+
+
+
+time_col = datetime(X_fly_Raw.textdata(:,3), 'Format', 'HH:mm:ss');          % Time column (col3)
+time_col.Second=0; % set all the seconds value to zero (Sometimes it was not automatically)
 
 
 % Convert Date and Time to datetime format
 try
-datetime_combined = datetime(X_plug_date, 'InputFormat', 'dd MMM yy') + timeofday(datetime(X_plug_time));
+datetime_combined = datetime(X_fly_Raw.textdata(:,2), 'InputFormat', 'dd MMM yy') + timeofday(datetime(time_col));
 catch
     try
-    datetime_combined = datetime(X_plug_date) + timeofday(datetime(X_plug_time));
+    datetime_combined = datetime(X_fly_Raw.textdata(:,2)) + timeofday(datetime(time_col));
     catch
 disp('ERROR! Date and time format is not standard, check Monitor file')
-     % set(handles.M_box,'String',[oldmsgs;{'ERROR! Date and time format is not standard, check Monitor file'}] );drawnow
-      % return
+      set(handles.M_box,'String',[oldmsgs;{'ERROR! Date and time format is not standard, check Monitor file'}] );drawnow
+       return
     end
 end
 
@@ -838,16 +844,31 @@ if isempty(missing_times)
     fprintf('No missing values found \n')
 else
      writematrix(missing_times, save_location_Missing_error)
-    % writematrix(missing_times, 'Missing_times.xls')
-    disp('ERROR! Missing data found')
-      set(handles.M_box,'String',[oldmsgs;{'ERROR! Missing data found'}] );drawnow
-       return
+  
+
+    [~, idx_in_complete] = ismember(datetime_combined,complete_timeline); % change here
+
+
+  new_data(idx_in_complete,:)=X_fly_Raw.data;
+
+  new_date_col=cellstr(datestr(complete_timeline, 'dd mmm yy'));
+  new_time_col = cellstr(datestr(complete_timeline, 'HH:MM:ss'));
+  new_arbitrary_number= num2cell(zeros(length(complete_timeline),1));
+
+new_textdata = [new_arbitrary_number, new_date_col, new_time_col];
+
+X_fly_Raw.data = new_data;
+X_fly_Raw.textdata = new_textdata; 
+
+
 end
 
 % Display the missing times
 %disp('Missing times:');
 %disp(missing_times);
 
+X_plug_date=X_fly_Raw.textdata(:,2);% data start from plug in time
+X_plug_time=X_fly_Raw.textdata(:,3);
 
 %% ***********************************************************************************************
 

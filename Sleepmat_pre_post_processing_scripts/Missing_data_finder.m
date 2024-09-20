@@ -9,7 +9,9 @@ EV_path=['C:\Users\shijusis\OneDrive - Michigan Medicine\Desktop\Re_ Sleep archi
 
 X_fly_Raw=importdata(EV_path);
 
-time_col = datetime(X_fly_Raw.textdata(:,3), 'Format', 'HH:mm:ss');          % Time column (col3)
+%time_col = datetime(X_fly_Raw.textdata(:,3), 'Format', 'HH:mm:ss');          % Time column (col3)
+time_col = datetime(X_fly_Raw.textdata(:,3), 'Format', 'HH:mm');          % Time column (col3)
+
 time_col.Second=0; % set all the seconds value to zero (Sometimes it was not automatically)
 
 
