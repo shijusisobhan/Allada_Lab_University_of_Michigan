@@ -5312,7 +5312,7 @@ writecell(Triage_results,save_location_Triage_info);
 
 try
     writecell(Result_all,save_location_24);
-    writetable(Result_all_SC,save_location_SC);
+    %writetable(Result_all_SC,save_location_SC);
     writecell(summary_all,save_location_summary_24);
     writecell(Result_all_L_D,save_location_L_D);
 end
