@@ -143,6 +143,10 @@ plot4+plot2
 
 View(seurat.integrated@meta.data)
 
+# stor figures
+
+saveRDS(plot2, "X:/Sequencing_data/scRNA_seq_JM_8_14-2024/Data_analysis_Shiju/cluster_vGATplot.rds")
+
 # Find Differentially expressed genes (cluster marker identification)
 
 # Running the IntegrateData function creates a new Assay object (by default it is called integrated)
@@ -381,3 +385,11 @@ PseudoBulk_Results_df <- bind_rows(lapply(names(PseudoBulk_Results), function(x)
 write.csv(PseudoBulk_Results_df,'X:/Sequencing_data/scRNA_seq_JM_8_14-2024/Data_analysis_Shiju/DEG_Between_condition_vGAT_ZT0vsZT12_PseudoBulk.csv')
 
 
+# for customized cluster plot
+library(ggplot2)
+
+plot1 <- DimPlot(seurat.integrated, reduction = "tsne", label = F)+NoLegend()+
+  theme(axis.title = element_text(size = 12), axis.text = element_text(size = 10))  # Adjust font size here
+plot1
+
+# ****************************************************************************************************************
