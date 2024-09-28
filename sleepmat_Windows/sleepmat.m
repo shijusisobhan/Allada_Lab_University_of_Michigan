@@ -442,7 +442,7 @@ end
 function Start_Callback(hObject, eventdata, handles)
 
 
-try
+ try
 
 oldmsgs = cellstr(get(handles.M_box,'String'));
 
