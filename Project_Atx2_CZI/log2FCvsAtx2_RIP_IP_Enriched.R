@@ -17,7 +17,7 @@ sleep_genes<-sleep_genes[which(sleep_genes$frequency>1),'ext_gene']
 
 Intersect_gens<-c(Wake_genes,sleep_genes)
 
-
+#Intersect_gens<-Wake_genes
 
 FC_th<- c(c(0.6,0.8),seq(1,8,0.5)) # log2FC threshold
 
@@ -36,6 +36,8 @@ for (i in FC_th) {
   
 }
 
+write.csv(df,'C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/Drosophila/Atx2/Writeup/wake_atx2.csv')
+
 # Double axis plot
 
 coeff=1/6 # trick to scale down the yaxis -2 (change the value based on your need)
@@ -45,12 +47,12 @@ library(ggplot2)
 ggplot(df,aes(x=log2FC))+
   geom_point( aes(y=N_gens),color='red')+
   geom_point(aes(y=N_Intersect_genes/coeff),color='blue')+
-  
+
   scale_y_continuous(
-    
+
     # Features of the first axis
     name = "# enriched Atx2 RIP IP genes",
-    
+
     # Add a second axis and specify its features
     sec.axis = sec_axis(transform =~.*coeff, name="# Atx2 RIP IP enriched genes Intersect with sleep/wake genes")
   ) +
@@ -58,6 +60,12 @@ ggplot(df,aes(x=log2FC))+
     axis.title.y = element_text(color = 'red', size=10),
     axis.title.y.right = element_text(color = 'blue', size=10)
   )
+
+
+Atx2_RIP_UP<-DEG_Atx2[which(DEG_Atx2$log2FoldChange > 1),'ext_gene'] # RIP IP up regulated genes for each FC_th
+common_genes<-intersect(Atx2_RIP_UP,Intersect_gens) # Intersect genes of up regulated and sleep/wake
+write.csv(common_genes,'C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/RNA sequencing/Drosophila/Atx2/Writeup/Intersecting_genes_Atx2RIP_UP_FC_1_Wake_sleep.csv')
+
 
 
 
