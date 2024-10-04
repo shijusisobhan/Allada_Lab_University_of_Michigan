@@ -1,5 +1,6 @@
 rm(list=ls())
-setwd('C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/SleepMat_all/YK/FLIC_data_Eduction')
+#setwd('C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/SleepMat_all/YK/FLIC_data_Eduction')
+setwd('C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/SleepMat_all/YK/FLIC_data_Eduction/FLIC_test')
 
 library(ggplot2)
 library(stats)
@@ -7,11 +8,11 @@ library(gridExtra)
 library(reshape2)
 library(gtools)
 
-source("C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/SleepMat_all/YK/FLIC_data_analysis_SW/FLICUserFunctions.R")
+source("C:/Users/shijusis/OneDrive - Michigan Medicine/Desktop/Shiju_sisobhan/GitHub_folder/Allada_Lab_University_of_Michigan/FlIC_2_SLEEP/FLIC_data_analysis_SW.R")
 
 DFM_number<-4
 
-p1<-ParametersClass.SingleWell()
+p1<-ParametersClass.SingleWell(Feeding.Threshold = 10)
 expDesign<-read.csv("ExpDesign.csv")
 Binned_data<-BinnedFeeding.Summary.Monitors(DFM_number,p1,1,expDesign = expDesign, TransformLicks=FALSE)
 flic_data<-Binned_data$Results
@@ -19,12 +20,14 @@ flic_data<-Binned_data$Results
 
 library(tidyverse)
 
-flic_data<-flic_data[,c(4,6:7)]
+flic_data<-flic_data[,c(3,5:6)]
 
 flic_data_wide<-pivot_wider(flic_data,
                             names_prefix = 'Ch',
                             names_from = 'Chamber',
                             values_from = 'Licks')
+
+
 
 
 
