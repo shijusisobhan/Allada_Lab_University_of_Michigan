@@ -2,8 +2,8 @@
 % Run_number='M63';
 % Environment_file='51';
 
-Run_number='M1';
-Environment_file='860';
+Run_number='M85';
+Environment_file='85';
 
 % EV_path=['C:\Users\shijusis\OneDrive - Michigan Medicine\Desktop\Michigan Behavior Analysis BL GW\GW_new_8_15\',Run_number,'\Monitor',Environment_file,'.txt'];
 EV_path=['C:\Users\shijusis\OneDrive - Michigan Medicine\Desktop\Tuhin\Environment','\Monitor',Environment_file,'.txt'];
