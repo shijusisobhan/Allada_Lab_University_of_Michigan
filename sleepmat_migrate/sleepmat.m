@@ -844,6 +844,7 @@ if isempty(missing_times)
     fprintf('No missing values found \n')
 else
      writematrix(missing_times, save_location_Missing_error)
+     fprintf('missing values found \n')
   
 
     [~, idx_in_complete] = ismember(datetime_combined,complete_timeline); % change here
